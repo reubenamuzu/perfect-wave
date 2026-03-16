@@ -25,6 +25,15 @@ export interface OrderDocument extends Document {
   orderType: 'bundle' | 'frame'
   items: OrderItemDocument[]
   totalAmount: number
+  // Payment
+  paymentMethod: 'momo_before' | 'momo_request' | 'cash_on_delivery'
+  momoNumber?: string
+  paymentConfirmed: boolean
+  paymentConfirmedAt?: Date
+  // Fulfilment
+  bundlePhone?: string
+  deliveryAddress?: string
+  note?: string
   status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled'
   statusHistory: StatusHistoryDocument[]
   smsSent: boolean
@@ -63,6 +72,19 @@ const OrderSchema = new Schema<OrderDocument>(
     orderType: { type: String, enum: ['bundle', 'frame'], required: true },
     items: [OrderItemSchema],
     totalAmount: { type: Number, required: true },
+    // Payment
+    paymentMethod: {
+      type: String,
+      enum: ['momo_before', 'momo_request', 'cash_on_delivery'],
+      required: true,
+    },
+    momoNumber: { type: String },
+    paymentConfirmed: { type: Boolean, default: false },
+    paymentConfirmedAt: { type: Date },
+    // Fulfilment
+    bundlePhone: { type: String },
+    deliveryAddress: { type: String },
+    note: { type: String },
     status: {
       type: String,
       enum: ['pending', 'processing', 'ready', 'delivered', 'cancelled'],

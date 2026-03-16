@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import ConfirmDeleteModal from '@/components/shared/ConfirmDeleteModal'
 import NetworkBadge from '@/components/shared/NetworkBadge'
 import { NETWORKS } from '@/lib/networkConfig'
 import { formatPrice } from '@/lib/utils'
@@ -20,7 +21,7 @@ const schema = z.object({
   size: z.string().min(1),
   sizeValue: z.number().positive(),
   price: z.number().positive(),
-  validity: z.string().min(1),
+  validity: z.string().optional(),
   category: z.enum(['daily', 'weekly', 'monthly']),
   badge: z.string().optional(),
   isActive: z.boolean(),
@@ -31,6 +32,9 @@ export default function BundlesPage() {
   const [bundles, setBundles] = useState<IBundle[]>([])
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<IBundle | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [noExpiry, setNoExpiry] = useState(false)
+  const [validityDays, setValidityDays] = useState<number | ''>(30)
 
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -43,19 +47,25 @@ export default function BundlesPage() {
 
   function openNew() {
     setEditing(null)
+    setNoExpiry(false)
+    setValidityDays(30)
     reset({ network: 'mtn', category: 'monthly', isActive: true })
     setOpen(true)
   }
 
   function openEdit(bundle: IBundle) {
     setEditing(bundle)
+    const isNoExpiry = bundle.validity === 'No expiry'
+    setNoExpiry(isNoExpiry)
+    setValidityDays(isNoExpiry ? 30 : parseInt(bundle.validity) || 30)
     reset({ ...bundle, badge: bundle.badge ?? '' })
     setOpen(true)
   }
 
   async function onSubmit(data: FormData) {
     try {
-      const payload = { ...data, sizeValue: Number(data.sizeValue), price: Number(data.price) }
+      const validity = noExpiry ? 'No expiry' : `${validityDays} days`
+      const payload = { ...data, sizeValue: Number(data.sizeValue), price: Number(data.price), validity }
       const method = editing ? 'PATCH' : 'POST'
       const url = editing ? `/api/bundles/${editing._id}` : '/api/bundles'
       const res = await fetch(url, {
@@ -78,11 +88,11 @@ export default function BundlesPage() {
     }
   }
 
-  async function deleteBundle(id: string) {
-    if (!confirm('Delete this bundle?')) return
-    const res = await fetch(`/api/bundles/${id}`, { method: 'DELETE' })
+  async function confirmDelete() {
+    if (!deleteId) return
+    const res = await fetch(`/api/bundles/${deleteId}`, { method: 'DELETE' })
     if (res.ok) {
-      setBundles((prev) => prev.filter((b) => b._id !== id))
+      setBundles((prev) => prev.filter((b) => b._id !== deleteId))
       toast.success('Bundle deleted')
     }
   }
@@ -95,8 +105,8 @@ export default function BundlesPage() {
   return (
     <div className="p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Syne, sans-serif' }}>Data Bundles</h1>
-        <Button onClick={openNew} className="bg-[#F5A623] hover:bg-[#e09315] text-[#1A1A2E] gap-2 font-bold">
+        <h1 className="text-2xl text-[#1A2E42]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Data Bundles</h1>
+        <Button onClick={openNew} className="bg-[#1B6CA8] hover:bg-[#0D4F82] text-white gap-2">
           <Plus className="w-4 h-4" /> Add Bundle
         </Button>
       </div>
@@ -136,7 +146,7 @@ export default function BundlesPage() {
                       <td className="py-2.5 px-4">
                         <div className="flex gap-1">
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(b)}><Pencil className="w-3.5 h-3.5" /></Button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-400 hover:text-red-600" onClick={() => deleteBundle(b._id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-400 hover:text-red-600" onClick={() => setDeleteId(b._id)}><Trash2 className="w-3.5 h-3.5" /></Button>
                         </div>
                       </td>
                     </tr>
@@ -149,6 +159,14 @@ export default function BundlesPage() {
           </div>
         )
       })}
+
+      <ConfirmDeleteModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Delete bundle?"
+        description="This bundle will be permanently removed and can't be recovered."
+      />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm">
@@ -184,7 +202,32 @@ export default function BundlesPage() {
               </div>
               <div>
                 <Label>Validity</Label>
-                <Input {...register('validity')} placeholder="30 days" className="mt-1" />
+                <div className="flex gap-1 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setNoExpiry(false)}
+                    className={`flex-1 px-2 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${!noExpiry ? 'bg-[#1B6CA8] text-white border-[#1B6CA8]' : 'border-gray-200 text-gray-500'}`}
+                  >
+                    Days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNoExpiry(true)}
+                    className={`flex-1 px-2 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${noExpiry ? 'bg-[#1B6CA8] text-white border-[#1B6CA8]' : 'border-gray-200 text-gray-500'}`}
+                  >
+                    No expiry
+                  </button>
+                </div>
+                {!noExpiry && (
+                  <Input
+                    type="number"
+                    min={1}
+                    value={validityDays}
+                    onChange={(e) => setValidityDays(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="30"
+                    className="mt-1"
+                  />
+                )}
               </div>
             </div>
             <div>
@@ -202,7 +245,7 @@ export default function BundlesPage() {
               <Label>Badge (optional)</Label>
               <Input {...register('badge')} placeholder="Best value" className="mt-1" />
             </div>
-            <Button type="submit" className="w-full bg-[#1A1A2E] text-white">
+            <Button type="submit" className="w-full bg-[#1B6CA8] hover:bg-[#0D4F82] text-white">
               {editing ? 'Update' : 'Create'} Bundle
             </Button>
           </form>

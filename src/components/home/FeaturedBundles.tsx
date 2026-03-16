@@ -1,19 +1,22 @@
 'use client'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { NETWORKS } from '@/lib/networkConfig'
 import NetworkBadge from '@/components/shared/NetworkBadge'
-import { buildWhatsAppURL, bundleOrderMessage } from '@/lib/whatsapp'
 import { formatPrice } from '@/lib/utils'
 import type { IBundle } from '@/types'
+import OrderModal, { type OrderProduct } from '@/components/shared/OrderModal'
 
 interface FeaturedBundlesProps {
   bundles: IBundle[]
 }
 
 export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
+  const [selected, setSelected] = useState<OrderProduct | null>(null)
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,7 +53,6 @@ export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {bundles.slice(0, 3).map((bundle, i) => {
             const net = NETWORKS[bundle.network]
-            const waUrl = buildWhatsAppURL(bundleOrderMessage(net.label, bundle.size, bundle.price))
             return (
               <motion.div
                 key={bundle._id}
@@ -101,15 +103,22 @@ export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
                   >
                     {formatPrice(bundle.price)}
                   </div>
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                    <Button
-                      className="w-full text-white text-sm rounded-[10px] hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#1B6CA8', fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
-                      aria-label={`Order ${net.label} ${bundle.size} bundle`}
-                    >
-                      Order via WhatsApp
-                    </Button>
-                  </a>
+                  <Button
+                    onClick={() =>
+                      setSelected({
+                        type: 'bundle',
+                        name: `${net.label} ${bundle.size} Bundle`,
+                        price: bundle.price,
+                        network: net.label,
+                        size: bundle.size,
+                      })
+                    }
+                    className="w-full text-white text-sm rounded-[10px] hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: '#1B6CA8', fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
+                    aria-label={`Order ${net.label} ${bundle.size} bundle`}
+                  >
+                    Order via WhatsApp
+                  </Button>
                 </div>
               </motion.div>
             )
@@ -126,6 +135,14 @@ export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
           </Link>
         </div>
       </div>
+
+      {selected && (
+        <OrderModal
+          isOpen={true}
+          onClose={() => setSelected(null)}
+          product={selected}
+        />
+      )}
     </section>
   )
 }

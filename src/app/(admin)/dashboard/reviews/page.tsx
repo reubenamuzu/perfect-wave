@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { CheckCircle2, XCircle, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import ConfirmDeleteModal from '@/components/shared/ConfirmDeleteModal'
 import StarRating from '@/components/shared/StarRating'
 import { formatDate } from '@/lib/utils'
 import type { IReview } from '@/types'
@@ -11,6 +12,7 @@ import type { IReview } from '@/types'
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<IReview[]>([])
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('pending')
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/reviews?admin=true')
@@ -36,24 +38,24 @@ export default function AdminReviewsPage() {
     }
   }
 
-  async function deleteReview(id: string) {
-    if (!confirm('Delete this review?')) return
-    await fetch(`/api/reviews/${id}`, { method: 'DELETE' })
-    setReviews((prev) => prev.filter((r) => r._id !== id))
+  async function confirmDelete() {
+    if (!deleteId) return
+    await fetch(`/api/reviews/${deleteId}`, { method: 'DELETE' })
+    setReviews((prev) => prev.filter((r) => r._id !== deleteId))
     toast.success('Review deleted')
   }
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Syne, sans-serif' }}>Reviews</h1>
+        <h1 className="text-2xl text-[#1A2E42]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Reviews</h1>
         <div className="flex gap-2">
           {(['pending', 'approved', 'all'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
-                filter === f ? 'bg-[#1A1A2E] text-white' : 'bg-white border border-gray-200 text-gray-600'
+                filter === f ? 'bg-[#1B6CA8] hover:bg-[#0D4F82] text-white' : 'bg-white border border-gray-200 text-gray-600'
               }`}
             >
               {f}
@@ -109,7 +111,7 @@ export default function AdminReviewsPage() {
                           size="sm"
                           variant="ghost"
                           className="h-7 w-7 p-0 text-red-400 hover:text-red-600"
-                          onClick={() => deleteReview(review._id)}
+                          onClick={() => setDeleteId(review._id)}
                           aria-label="Delete review"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -123,6 +125,14 @@ export default function AdminReviewsPage() {
           </table>
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Delete review?"
+        description="This review will be permanently removed and can't be recovered."
+      />
     </div>
   )
 }

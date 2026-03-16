@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
-import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook, Instagram } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook, Instagram, Banknote, Bell, PhoneForwarded } from 'lucide-react'
 import PageTransition from '@/components/shared/PageTransition'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,6 +66,83 @@ export default function ContactPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* How to Pay */}
+          <div className="mb-12">
+            <p
+              className="text-xs tracking-[0.18em] uppercase mb-1"
+              style={{ color: '#5A7A99', fontFamily: 'Outfit, sans-serif' }}
+            >
+              Simple &amp; flexible
+            </p>
+            <h2
+              className="text-2xl mb-6"
+              style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1A2E42' }}
+            >
+              How to Pay
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Card 1 */}
+              <div className="bg-white rounded-2xl border border-[#C8DFF0] p-5">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                  style={{ backgroundColor: '#EAF3FB' }}
+                >
+                  <PhoneForwarded className="w-5 h-5" style={{ color: '#1B6CA8' }} />
+                </div>
+                <h3
+                  className="text-sm mb-1.5"
+                  style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1A2E42' }}
+                >
+                  Send MoMo First
+                </h3>
+                <p className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#5A7A99', fontWeight: 400 }}>
+                  Send your payment to 0597473708, share the screenshot on WhatsApp, and we&apos;ll
+                  process your order right away.
+                </p>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white rounded-2xl border border-[#C8DFF0] p-5">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                  style={{ backgroundColor: '#EAF3FB' }}
+                >
+                  <Bell className="w-5 h-5" style={{ color: '#1B6CA8' }} />
+                </div>
+                <h3
+                  className="text-sm mb-1.5"
+                  style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1A2E42' }}
+                >
+                  Receive a MoMo Request
+                </h3>
+                <p className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#5A7A99', fontWeight: 400 }}>
+                  Place your order on WhatsApp, and we&apos;ll send a MoMo payment request directly
+                  to your phone to confirm.
+                </p>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-2xl border border-[#C8DFF0] p-5">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                  style={{ backgroundColor: '#EAF3FB' }}
+                >
+                  <Banknote className="w-5 h-5" style={{ color: '#1B6CA8' }} />
+                </div>
+                <h3
+                  className="text-sm mb-1.5"
+                  style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1A2E42' }}
+                >
+                  Cash on Delivery
+                </h3>
+                <p className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#5A7A99', fontWeight: 400 }}>
+                  Available for picture frame orders within the Kumasi area. Pay cash when your
+                  order arrives at your location.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Info side */}
             <motion.div

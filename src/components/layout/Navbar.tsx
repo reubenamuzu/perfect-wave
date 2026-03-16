@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, MessageCircle } from 'lucide-react'
+import { Menu, X, MessageCircle, LayoutDashboard } from 'lucide-react'
 import { buildWhatsAppURL } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import PerfectWaveLogo from '@/components/shared/PerfectWaveLogo'
@@ -64,6 +64,14 @@ export default function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-[10px] border border-[#C8DFF0] text-[#5A7A99] hover:text-[#1B6CA8] hover:border-[#1B6CA8] hover:bg-[#EAF3FB] transition-colors"
+              style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              Admin
+            </Link>
             <a
               href={buildWhatsAppURL('Hello! I want to place an order.')}
               target="_blank"
@@ -73,7 +81,7 @@ export default function Navbar() {
               <motion.button
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 border border-[#1B6CA8] text-[#1B6CA8] px-5 py-2 rounded-[10px] text-sm hover:bg-[#1B6CA8] hover:text-white transition-colors"
+                className="inline-flex items-center bg-accent gap-2 border border-[#1B6CA8] text-[#1B6CA8] px-5 py-2 rounded-[10px] text-sm hover:bg-[#1B6CA8] hover:text-white transition-colors"
                 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
               >
                 <MessageCircle className="w-4 h-4" />
@@ -119,7 +127,16 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 w-full border border-[#C8DFF0] text-[#5A7A99] px-5 py-2.5 rounded-[10px] text-sm hover:bg-[#EAF3FB] hover:text-[#1B6CA8] transition-colors"
+                  style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Admin
+                </Link>
                 <a
                   href={buildWhatsAppURL('Hello! I want to place an order.')}
                   target="_blank"

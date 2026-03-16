@@ -1,25 +1,25 @@
-'use client'
-import { AnimatePresence, motion } from 'framer-motion'
-import BundleCard from './BundleCard'
-import type { IBundle } from '@/types'
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import BundleCard from "./BundleCard";
+import type { IBundle } from "@/types";
 
 interface BundleGridProps {
-  bundles: IBundle[]
+  bundles: IBundle[];
 }
 
 export default function BundleGrid({ bundles }: BundleGridProps) {
   if (bundles.length === 0) {
     return (
       <div className="py-16 text-center text-gray-400">
-        No bundles found for this filter.
+        No bundles found for {bundles.length > 0 ? ` (${bundles[0].network})` : ''}.
       </div>
-    )
+    );
   }
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={bundles.map((b) => b._id).join(',')}
+        key={bundles.map((b) => b._id).join(",")}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -31,5 +31,5 @@ export default function BundleGrid({ bundles }: BundleGridProps) {
         ))}
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }

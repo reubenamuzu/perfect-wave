@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import WhatsAppButton from "@/components/shared/WhatsAppButton";
+import PublicShell from "@/components/layout/PublicShell";
 import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -50,10 +48,8 @@ export default function RootLayout({
         />
       </head>
       <body className={`${plusJakartaSans.variable} ${outfit.variable} antialiased`}>
-        <Navbar />
+        <PublicShell />
         <main>{children}</main>
-        <Footer />
-        <WhatsAppButton />
         <Toaster richColors position="top-right" />
       </body>
     </html>

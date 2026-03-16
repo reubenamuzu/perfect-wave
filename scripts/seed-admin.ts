@@ -14,7 +14,7 @@ import bcrypt from 'bcryptjs'
 
 const MONGODB_URI = process.env.MONGODB_URI || ''
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@perfectwave.gh'
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@2024!'
 
 const AdminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },

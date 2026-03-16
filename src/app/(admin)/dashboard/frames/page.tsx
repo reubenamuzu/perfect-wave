@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import ConfirmDeleteModal from '@/components/shared/ConfirmDeleteModal'
 import ImageUpload from '@/components/shared/ImageUpload'
 import { formatPrice } from '@/lib/utils'
 import type { IFrame } from '@/types'
@@ -35,6 +36,7 @@ export default function FramesPage() {
   const [frames, setFrames] = useState<IFrame[]>([])
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<IFrame | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState('')
   const [selectedSizes, setSelectedSizes] = useState<string[]>(['4x6'])
 
@@ -87,17 +89,17 @@ export default function FramesPage() {
     }
   }
 
-  async function deleteFrame(id: string) {
-    if (!confirm('Delete this frame?')) return
-    const res = await fetch(`/api/frames/${id}`, { method: 'DELETE' })
-    if (res.ok) { setFrames((prev) => prev.filter((f) => f._id !== id)); toast.success('Frame deleted') }
+  async function confirmDelete() {
+    if (!deleteId) return
+    const res = await fetch(`/api/frames/${deleteId}`, { method: 'DELETE' })
+    if (res.ok) { setFrames((prev) => prev.filter((f) => f._id !== deleteId)); toast.success('Frame deleted') }
   }
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Syne, sans-serif' }}>Picture Frames</h1>
-        <Button onClick={openNew} className="bg-[#F5A623] hover:bg-[#e09315] text-[#1A1A2E] gap-2 font-bold">
+        <h1 className="text-2xl text-[#1A2E42]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Picture Frames</h1>
+        <Button onClick={openNew} className="bg-[#1B6CA8] hover:bg-[#0D4F82] text-white gap-2">
           <Plus className="w-4 h-4" /> Add Frame
         </Button>
       </div>
@@ -121,7 +123,7 @@ export default function FramesPage() {
                 <Button size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={() => openEdit(frame)}>
                   <Pencil className="w-3 h-3 mr-1" /> Edit
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-400" onClick={() => deleteFrame(frame._id)}>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-400" onClick={() => setDeleteId(frame._id)}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
@@ -130,6 +132,14 @@ export default function FramesPage() {
         ))}
         {frames.length === 0 && <p className="text-gray-400 text-sm col-span-full py-10 text-center">No frames yet.</p>}
       </div>
+
+      <ConfirmDeleteModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Delete frame?"
+        description="This frame will be permanently removed and can't be recovered."
+      />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto">
@@ -196,7 +206,7 @@ export default function FramesPage() {
                 <Input {...register('badge')} placeholder="Bestseller" className="mt-1" />
               </div>
             </div>
-            <Button type="submit" className="w-full bg-[#1A1A2E] text-white">
+            <Button type="submit" className="w-full bg-[#1B6CA8] hover:bg-[#0D4F82] text-white">
               {editing ? 'Update' : 'Create'} Frame
             </Button>
           </form>

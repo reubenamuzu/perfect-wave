@@ -18,27 +18,52 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { status } = await req.json()
+    const body = await req.json()
+    const { status, paymentConfirmed } = body
 
     await connectDB()
     const order = await Order.findById(id)
     if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    order.status = status
-    order.statusHistory.push({ status, timestamp: new Date() })
-    await order.save()
+    // Handle payment confirmation toggle
+    if (paymentConfirmed === true && !order.paymentConfirmed) {
+      order.paymentConfirmed = true
+      order.paymentConfirmedAt = new Date()
 
-    // Send SMS notification
-    if (['processing', 'ready', 'delivered', 'cancelled'].includes(status)) {
-      const templateFn = smsTemplates[status as keyof typeof smsTemplates]
-      if (templateFn) {
-        const message = templateFn(order.customerName, order.orderId)
-        await sendSMS(order.customerPhone, message)
-        order.smsSent = true
-        await order.save()
+      // Auto-advance from pending → processing
+      if (order.status === 'pending') {
+        order.status = 'processing'
+        order.statusHistory.push({
+          status: 'processing',
+          timestamp: new Date(),
+          note: 'Payment confirmed',
+        })
+        // Send SMS for processing
+        const templateFn = smsTemplates['processing' as keyof typeof smsTemplates]
+        if (templateFn) {
+          const message = templateFn(order.customerName, order.orderId)
+          await sendSMS(order.customerPhone, message)
+          order.smsSent = true
+        }
       }
     }
 
+    // Handle status update
+    if (status && status !== order.status) {
+      order.status = status
+      order.statusHistory.push({ status, timestamp: new Date() })
+
+      if (['processing', 'ready', 'delivered', 'cancelled'].includes(status)) {
+        const templateFn = smsTemplates[status as keyof typeof smsTemplates]
+        if (templateFn) {
+          const message = templateFn(order.customerName, order.orderId)
+          await sendSMS(order.customerPhone, message)
+          order.smsSent = true
+        }
+      }
+    }
+
+    await order.save()
     return NextResponse.json({ order: JSON.parse(JSON.stringify(order)) })
   } catch (err) {
     console.error(err)

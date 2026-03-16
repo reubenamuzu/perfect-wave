@@ -8,7 +8,7 @@ export async function GET() {
     await connectDB()
     const orders = await Order.find({}).sort({ createdAt: -1 }).lean()
     return NextResponse.json({ orders: JSON.parse(JSON.stringify(orders)) })
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 }
@@ -16,14 +16,28 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { customerName, customerPhone, customerEmail, orderType, items } = body
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      orderType,
+      items,
+      paymentMethod,
+      momoNumber,
+      bundlePhone,
+      deliveryAddress,
+      note,
+    } = body
 
-    if (!customerName || !customerPhone || !orderType || !items?.length) {
+    if (!customerName || !customerPhone || !orderType || !items?.length || !paymentMethod) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     await connectDB()
-    const totalAmount = items.reduce((s: number, i: { price: number; quantity: number }) => s + i.price * i.quantity, 0)
+    const totalAmount = items.reduce(
+      (s: number, i: { price: number; quantity: number }) => s + i.price * i.quantity,
+      0
+    )
     const orderId = generateOrderId()
 
     const order = await Order.create({
@@ -34,6 +48,11 @@ export async function POST(req: NextRequest) {
       orderType,
       items,
       totalAmount,
+      paymentMethod,
+      momoNumber,
+      bundlePhone,
+      deliveryAddress,
+      note,
       status: 'pending',
       statusHistory: [{ status: 'pending', timestamp: new Date() }],
     })

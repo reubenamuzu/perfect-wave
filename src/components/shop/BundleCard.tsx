@@ -1,100 +1,139 @@
 'use client'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import NetworkBadge from '@/components/shared/NetworkBadge'
+import { Wifi } from 'lucide-react'
 import { NETWORKS } from '@/lib/networkConfig'
-import { buildWhatsAppURL, bundleOrderMessage } from '@/lib/whatsapp'
 import { formatPrice } from '@/lib/utils'
 import type { IBundle } from '@/types'
+import OrderModal from '@/components/shared/OrderModal'
 
 interface BundleCardProps {
   bundle: IBundle
   index?: number
 }
 
+// MTN is yellow (light bg) — everything else is dark background
+function isLightBackground(networkId: string) {
+  return networkId === 'mtn'
+}
+
 export default function BundleCard({ bundle, index = 0 }: BundleCardProps) {
+  const [modalOpen, setModalOpen] = useState(false)
   const net = NETWORKS[bundle.network]
-  const waUrl = buildWhatsAppURL(bundleOrderMessage(net.label, bundle.size, bundle.price))
+  const light = isLightBackground(bundle.network)
+
+  const textColor = light ? '#3D2800' : '#ffffff'
+  const subTextColor = light ? 'rgba(61,40,0,0.65)' : 'rgba(255,255,255,0.75)'
+  const badgeBg = light ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.2)'
+  const iconCircleBg = light ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.15)'
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.4, delay: index * 0.06, ease: 'easeOut' }}
-      whileHover={{ y: -2, boxShadow: '0 6px 20px rgba(27,108,168,0.12)' }}
-      className="bg-white rounded-2xl overflow-hidden"
-      style={{
-        border: '1px solid #C8DFF0',
-        boxShadow: '0 2px 12px rgba(27,108,168,0.06)',
-        borderTop: `3px solid ${net.primaryColor}`,
-      }}
-    >
-      {/* Header */}
-      <div className="px-4 pt-4 pb-3 flex items-center gap-3">
-        <NetworkBadge network={bundle.network} size="sm" />
-        <div className="flex-1 min-w-0">
-          <p
-            className="text-sm leading-none text-[#1A2E42]"
-            style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
-          >
-            {net.label}
-          </p>
-          <p
-            className="text-xs text-[#5A7A99] mt-0.5"
-            style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}
-          >
-            {bundle.validity}
-          </p>
-        </div>
-        {bundle.badge && (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.35, delay: index * 0.05, ease: 'easeOut' }}
+        whileHover={{ y: -4, scale: 1.02 }}
+        className="rounded-2xl overflow-hidden cursor-pointer"
+        style={{
+          backgroundColor: net.primaryColor,
+          boxShadow: `0 4px 20px ${net.primaryColor}55`,
+        }}
+      >
+        {/* Network name pill — top left */}
+        <div className="px-4 pt-4 pb-1">
           <span
-            className="shrink-0 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide text-white"
-            style={{ backgroundColor: net.primaryColor, fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}
-          >
-            {bundle.badge}
-          </span>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="px-4 pb-4">
-        <div className="border-t border-[#EAF3FB] pt-3 mb-3">
-          <div
-            className="text-3xl leading-none mb-0.5"
-            style={{ color: net.primaryColor, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}
-          >
-            {bundle.size}
-          </div>
-          <div
-            className="text-xs text-[#5A7A99] capitalize"
-            style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}
-          >
-            {bundle.category} bundle
-          </div>
-        </div>
-
-        <div
-          className="text-xl text-[#1B6CA8] mb-4"
-          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}
-        >
-          {formatPrice(bundle.price)}
-        </div>
-
-        <a href={waUrl} target="_blank" rel="noopener noreferrer">
-          <Button
-            className="w-full text-white text-sm rounded-[10px] hover:opacity-90 transition-opacity"
+            className="inline-block text-[11px] px-3 py-1 rounded-full uppercase tracking-widest"
             style={{
-              backgroundColor: '#1B6CA8',
+              backgroundColor: '#ffffff',
+              color: net.primaryColor,
               fontFamily: 'Outfit, sans-serif',
-              fontWeight: 500,
+              fontWeight: 600,
             }}
-            aria-label={`Order ${net.label} ${bundle.size} bundle for ${formatPrice(bundle.price)}`}
+          >
+            {net.abbr}
+          </span>
+        </div>
+
+        {/* Card body */}
+        <div className="px-4 pb-2 pt-3 flex flex-col items-center text-center">
+          {/* WiFi icon in circle */}
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+            style={{ backgroundColor: iconCircleBg }}
+          >
+            <Wifi
+              className="w-7 h-7"
+              style={{ color: light ? 'rgba(61,40,0,0.7)' : 'rgba(255,255,255,0.85)' }}
+            />
+          </div>
+
+          {/* Size — Price */}
+          <p
+            className="text-2xl leading-tight mb-1"
+            style={{ color: textColor, fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}
+          >
+            {bundle.size} — {bundle.price !== null ? formatPrice(bundle.price) : 'Call us'}
+          </p>
+
+          {/* DATA BUNDLE label */}
+          <p
+            className="text-[11px] tracking-widest uppercase mb-3"
+            style={{ color: subTextColor, fontFamily: 'Outfit, sans-serif', fontWeight: 400 }}
+          >
+            Data Bundle
+          </p>
+
+          {/* Validity pill */}
+          <span
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full mb-5"
+            style={{
+              backgroundColor: badgeBg,
+              color: textColor,
+              fontFamily: 'Outfit, sans-serif',
+              fontWeight: 400,
+            }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: textColor }}
+            />
+            Non-expiry
+            {/* {bundle.validity} */}
+          </span>
+        </div>
+
+        {/* Order button */}
+        <div className="px-4 pb-4">
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setModalOpen(true)}
+            className="w-full py-3 rounded-xl text-sm"
+            style={{
+              backgroundColor: '#ffffff',
+              color: light ? '#3D2800' : '#1A2E42',
+              fontFamily: 'Outfit, sans-serif',
+              fontWeight: 600,
+            }}
+            aria-label={`Order ${net.label} ${bundle.size} bundle`}
           >
             Order via WhatsApp
-          </Button>
-        </a>
-      </div>
-    </motion.div>
+          </motion.button>
+        </div>
+      </motion.div>
+
+      <OrderModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        product={{
+          type: 'bundle',
+          name: `${net.label} ${bundle.size} Bundle`,
+          price: bundle.price,
+          network: net.label,
+          size: bundle.size,
+        }}
+      />
+    </>
   )
 }

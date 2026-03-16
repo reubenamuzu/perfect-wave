@@ -5,9 +5,9 @@ import Image from 'next/image'
 import { Upload, ZoomIn, ZoomOut, RotateCcw, MessageCircle, Loader2, Frame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import FramePicker from './FramePicker'
-import { buildWhatsAppURL, frameOrderMessage } from '@/lib/whatsapp'
 import { formatPrice } from '@/lib/utils'
 import type { IFrame } from '@/types'
+import OrderModal from '@/components/shared/OrderModal'
 
 // Slider isn't in shadcn by default — use a simple range input fallback
 function RangeSlider({
@@ -44,7 +44,7 @@ export default function FrameDesigner({ frames, defaultFrameId }: FrameDesignerP
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
   const [uploading, setUploading] = useState(false)
-  const [exporting, setExporting] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
@@ -65,17 +65,9 @@ export default function FrameDesigner({ frames, defaultFrameId }: FrameDesignerP
     }
   }
 
-  async function handleOrder() {
+  function handleOrder() {
     if (!selectedFrame) return
-    setExporting(true)
-    try {
-      const waUrl = buildWhatsAppURL(
-        frameOrderMessage(selectedFrame.name, selectedSize, price, photoUrl ?? undefined)
-      )
-      window.open(waUrl, '_blank')
-    } finally {
-      setExporting(false)
-    }
+    setModalOpen(true)
   }
 
   const handleFrameSelect = (frame: IFrame) => {
@@ -200,13 +192,9 @@ export default function FrameDesigner({ frames, defaultFrameId }: FrameDesignerP
         <Button
           className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-medium text-base gap-2 h-12"
           onClick={handleOrder}
-          disabled={!selectedFrame || exporting}
+          disabled={!selectedFrame}
         >
-          {exporting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <MessageCircle className="w-5 h-5" />
-          )}
+          <MessageCircle className="w-5 h-5" />
           Order This Design
         </Button>
       </div>
@@ -269,6 +257,20 @@ export default function FrameDesigner({ frames, defaultFrameId }: FrameDesignerP
           </p>
         )}
       </div>
+
+      {selectedFrame && (
+        <OrderModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          product={{
+            type: 'frame',
+            name: selectedFrame.name,
+            price,
+            size: selectedSize,
+            imageUrl: photoUrl ?? undefined,
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -5,12 +5,14 @@ import { toast } from 'sonner'
 import { Upload, Trash2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import ConfirmDeleteModal from '@/components/shared/ConfirmDeleteModal'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { IGalleryItem, GalleryCategory } from '@/types'
 
 export default function AdminGalleryPage() {
   const [items, setItems] = useState<IGalleryItem[]>([])
   const [uploading, setUploading] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
   const [captions, setCaptions] = useState<Record<string, string>>({})
   const [categories, setCategories] = useState<Record<string, GalleryCategory>>({})
 
@@ -46,19 +48,19 @@ export default function AdminGalleryPage() {
     toast.success('Upload complete')
   }
 
-  async function deleteItem(id: string) {
-    if (!confirm('Delete this image?')) return
-    await fetch(`/api/gallery/${id}`, { method: 'DELETE' })
-    setItems((prev) => prev.filter((i) => i._id !== id))
+  async function confirmDelete() {
+    if (!deleteId) return
+    await fetch(`/api/gallery/${deleteId}`, { method: 'DELETE' })
+    setItems((prev) => prev.filter((i) => i._id !== deleteId))
     toast.success('Image deleted')
   }
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Syne, sans-serif' }}>Gallery</h1>
+        <h1 className="text-2xl text-[#1A2E42]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Gallery</h1>
         <label className="cursor-pointer">
-          <div className="inline-flex items-center gap-2 font-bold bg-[#F5A623] hover:bg-[#e09315] text-[#1A1A2E] px-4 py-2 rounded-md text-sm transition-colors cursor-pointer">
+          <div className="inline-flex items-center gap-2 font-bold bg-[#1B6CA8] hover:bg-[#0D4F82] text-white px-4 py-2 rounded-md text-sm transition-colors cursor-pointer">
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             Upload Images
           </div>
@@ -91,7 +93,7 @@ export default function AdminGalleryPage() {
                     <SelectItem value="showcase">Showcase</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button size="sm" variant="destructive" className="w-full h-6 text-xs" onClick={() => deleteItem(item._id)}>
+                <Button size="sm" variant="destructive" className="w-full h-6 text-xs" onClick={() => setDeleteId(item._id)}>
                   <Trash2 className="w-3 h-3 mr-1" /> Delete
                 </Button>
               </div>
@@ -104,6 +106,13 @@ export default function AdminGalleryPage() {
           <p>No gallery images yet. Upload some!</p>
         </div>
       )}
+    <ConfirmDeleteModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Delete image?"
+        description="This image will be permanently removed and can't be recovered."
+      />
     </div>
   )
 }

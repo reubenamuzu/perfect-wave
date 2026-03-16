@@ -59,13 +59,13 @@ export default function PerfectWaveLogo({
       {/* Text */}
       <div className="flex flex-col leading-none">
         <span
-          className={`${s.textMain} font-semibold tracking-tight`}
+          className={`${s.textMain} font-extrabold text-6xl tracking-tight`}
           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', color: textColor }}
         >
           PerfectWave
         </span>
         <span
-          className={`${s.textSub} font-normal tracking-[0.15em] uppercase mt-0.5`}
+          className={`${s.textSub} font-extrabold tracking-[0.15em] uppercase mt-0.5`}
           style={{ fontFamily: 'Outfit, sans-serif', color: subColor }}
         >
           Services

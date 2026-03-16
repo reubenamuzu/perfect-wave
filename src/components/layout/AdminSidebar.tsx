@@ -5,8 +5,11 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  Image,
+  Frame,
+  GalleryHorizontal,
   Star,
+  Settings,
+  ExternalLink,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -14,12 +17,13 @@ import { toast } from 'sonner'
 import PerfectWaveLogo from '@/components/shared/PerfectWaveLogo'
 
 const NAV_ITEMS = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/dashboard/orders', label: 'Orders', icon: ShoppingBag },
-  { href: '/admin/dashboard/bundles', label: 'Data Bundles', icon: Package },
-  { href: '/admin/dashboard/frames', label: 'Picture Frames', icon: Image },
-  { href: '/admin/dashboard/gallery', label: 'Gallery', icon: Image },
-  { href: '/admin/dashboard/reviews', label: 'Reviews', icon: Star },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/dashboard/bundles', label: 'Data Bundles', icon: Package },
+  { href: '/dashboard/frames', label: 'Picture Frames', icon: Frame },
+  { href: '/dashboard/gallery', label: 'Gallery', icon: GalleryHorizontal },
+  { href: '/dashboard/reviews', label: 'Reviews', icon: Star },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function AdminSidebar() {
@@ -29,7 +33,7 @@ export default function AdminSidebar() {
   async function handleLogout() {
     await fetch('/api/auth/login', { method: 'DELETE' })
     toast.success('Logged out')
-    router.push('/admin/login')
+    router.push('/login')
   }
 
   return (
@@ -39,7 +43,7 @@ export default function AdminSidebar() {
     >
       {/* Logo */}
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #C8DFF0' }}>
-        <Link href="/admin/dashboard" aria-label="Admin dashboard">
+        <Link href="/dashboard" aria-label="Admin dashboard">
           <PerfectWaveLogo size="sm" variant="dark" />
         </Link>
       </div>
@@ -65,9 +69,7 @@ export default function AdminSidebar() {
                       borderLeft: '3px solid #1B6CA8',
                       fontFamily: 'Outfit, sans-serif',
                     }
-                  : {
-                      fontFamily: 'Outfit, sans-serif',
-                    }
+                  : { fontFamily: 'Outfit, sans-serif' }
               }
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -77,8 +79,17 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3" style={{ borderTop: '1px solid #C8DFF0' }}>
+      {/* Footer actions */}
+      <div className="p-3 space-y-1" style={{ borderTop: '1px solid #C8DFF0' }}>
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#5A7A99] hover:text-[#1B6CA8] hover:bg-[#EAF3FB] transition-colors w-full"
+          style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 400 }}
+        >
+          <ExternalLink className="w-4 h-4 shrink-0" />
+          View Site
+        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#5A7A99] hover:text-red-500 hover:bg-red-50 transition-colors w-full"

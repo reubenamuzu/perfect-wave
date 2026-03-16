@@ -2,6 +2,7 @@ export type NetworkId = 'mtn' | 'telecel' | 'airteltigo';
 export type BundleCategory = 'daily' | 'weekly' | 'monthly';
 export type OrderStatus = 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
 export type OrderType = 'bundle' | 'frame';
+export type PaymentMethod = 'momo_before' | 'momo_request' | 'cash_on_delivery';
 export type ProductType = 'bundle' | 'frame' | 'general';
 export type GalleryCategory = 'frames' | 'custom' | 'showcase';
 export type FrameMaterial = 'Wood' | 'Plastic' | 'Metal';
@@ -79,6 +80,15 @@ export interface IOrder {
   orderType: OrderType;
   items: IOrderItem[];
   totalAmount: number;
+  // Payment
+  paymentMethod: PaymentMethod;
+  momoNumber?: string;
+  paymentConfirmed: boolean;
+  paymentConfirmedAt?: string;
+  // Fulfilment
+  bundlePhone?: string;
+  deliveryAddress?: string;
+  note?: string;
   status: OrderStatus;
   statusHistory: IStatusHistoryEntry[];
   smsSent: boolean;
