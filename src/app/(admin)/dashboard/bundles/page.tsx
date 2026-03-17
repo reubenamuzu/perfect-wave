@@ -57,7 +57,7 @@ export default function BundlesPage() {
     const isNoExpiry = bundle.validity === 'No expiry'
     setNoExpiry(isNoExpiry)
     setValidityDays(isNoExpiry ? 30 : parseInt(bundle.validity) || 30)
-    reset({ ...bundle, badge: bundle.badge ?? '' })
+    reset({ ...bundle, badge: bundle.badge ?? '', price: bundle.price ?? undefined })
     setOpen(true)
   }
 
