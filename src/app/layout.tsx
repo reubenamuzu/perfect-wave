@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import "driver.js/dist/driver.css";
 import PublicShell from "@/components/layout/PublicShell";
+import { TourProvider } from "@/components/shared/SiteTour";
 import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -49,8 +50,10 @@ export default function RootLayout({
         />
       </head>
       <body className={`${plusJakartaSans.variable} ${outfit.variable} antialiased`}>
-        <PublicShell />
-        <main>{children}</main>
+        <TourProvider>
+          <PublicShell />
+          <main>{children}</main>
+        </TourProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

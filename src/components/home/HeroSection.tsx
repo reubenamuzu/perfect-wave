@@ -140,7 +140,7 @@ export default function HeroSection() {
             <motion.div variants={FADE_UP}>
               <button
                 onClick={startTour}
-                className="flex items-center gap-2 text-sm text-[#5A7A99] hover:text-[#1B6CA8] transition-colors mt-1"
+                className="flex items-center gap-2 text-lg text-[#5A7A99] hover:text-[#1B6CA8] hover:underline transition-colors mt-1 mb-1 cursor-pointer"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
               >
                 <PlayCircle className="w-4 h-4" />
