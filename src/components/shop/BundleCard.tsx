@@ -41,8 +41,8 @@ export default function BundleCard({ bundle, index = 0 }: BundleCardProps) {
           boxShadow: `0 4px 20px ${net.primaryColor}55`,
         }}
       >
-        {/* Network name pill — top left */}
-        <div className="px-4 pt-4 pb-1">
+        {/* Top row: network pill left, badge right */}
+        <div className="px-4 pt-4 pb-1 flex items-center justify-between">
           <span
             className="inline-block text-[11px] px-3 py-1 rounded-full uppercase tracking-widest"
             style={{
@@ -54,6 +54,19 @@ export default function BundleCard({ bundle, index = 0 }: BundleCardProps) {
           >
             {net.abbr}
           </span>
+          {bundle.badge && (
+            <span
+              className="inline-block text-[11px] px-3 py-1 rounded-full uppercase tracking-widest"
+              style={{
+                backgroundColor: '#ffffff',
+                color: net.primaryColor,
+                fontFamily: 'Outfit, sans-serif',
+                fontWeight: 600,
+              }}
+            >
+              {bundle.badge}
+            </span>
+          )}
         </div>
 
         {/* Card body */}
@@ -99,8 +112,7 @@ export default function BundleCard({ bundle, index = 0 }: BundleCardProps) {
               className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: textColor }}
             />
-            Non-expiry
-            {/* {bundle.validity} */}
+            {bundle.validity}
           </span>
         </div>
 

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Loader2, KeyRound } from 'lucide-react'
+import { Loader2, KeyRound, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +21,39 @@ const schema = z
   })
 
 type FormData = z.infer<typeof schema>
+
+function PasswordInput({ id, placeholder, autoComplete, registration, error }: {
+  id: string
+  placeholder?: string
+  autoComplete?: string
+  registration: ReturnType<ReturnType<typeof useForm<FormData>>['register']>
+  error?: string
+}) {
+  const [show, setShow] = useState(false)
+  return (
+    <div>
+      <div className="relative mt-1">
+        <Input
+          id={id}
+          type={show ? 'text' : 'password'}
+          {...registration}
+          placeholder={placeholder}
+          className="pr-10"
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A7A99] hover:text-[#1B6CA8] transition-colors"
+          aria-label={show ? 'Hide password' : 'Show password'}
+        >
+          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  )
+}
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
@@ -77,47 +110,35 @@ export default function SettingsPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="currentPassword">Current Password</Label>
-            <Input
+            <PasswordInput
               id="currentPassword"
-              type="password"
-              {...register('currentPassword')}
               placeholder="••••••••"
-              className="mt-1"
               autoComplete="current-password"
+              registration={register('currentPassword')}
+              error={errors.currentPassword?.message}
             />
-            {errors.currentPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.currentPassword.message}</p>
-            )}
           </div>
 
           <div>
             <Label htmlFor="newPassword">New Password</Label>
-            <Input
+            <PasswordInput
               id="newPassword"
-              type="password"
-              {...register('newPassword')}
               placeholder="••••••••"
-              className="mt-1"
               autoComplete="new-password"
+              registration={register('newPassword')}
+              error={errors.newPassword?.message}
             />
-            {errors.newPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.newPassword.message}</p>
-            )}
           </div>
 
           <div>
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
-              {...register('confirmPassword')}
               placeholder="••••••••"
-              className="mt-1"
               autoComplete="new-password"
+              registration={register('confirmPassword')}
+              error={errors.confirmPassword?.message}
             />
-            {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
-            )}
           </div>
 
           <Button

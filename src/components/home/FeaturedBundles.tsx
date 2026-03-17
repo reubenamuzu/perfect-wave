@@ -18,7 +18,7 @@ export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
   const [selected, setSelected] = useState<OrderProduct | null>(null)
 
   return (
-    <section className="py-20 bg-white">
+    <section id="bundles-section" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -56,6 +56,7 @@ export default function FeaturedBundles({ bundles }: FeaturedBundlesProps) {
             return (
               <motion.div
                 key={bundle._id}
+                id={i === 0 ? 'first-bundle-card' : undefined}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

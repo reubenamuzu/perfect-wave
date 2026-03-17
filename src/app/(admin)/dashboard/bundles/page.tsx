@@ -14,7 +14,7 @@ import ConfirmDeleteModal from '@/components/shared/ConfirmDeleteModal'
 import NetworkBadge from '@/components/shared/NetworkBadge'
 import { NETWORKS } from '@/lib/networkConfig'
 import { formatPrice } from '@/lib/utils'
-import type { IBundle, NetworkId, BundleCategory } from '@/types'
+import type { IBundle, NetworkId } from '@/types'
 
 const schema = z.object({
   network: z.enum(['mtn', 'telecel', 'airteltigo']),
@@ -22,7 +22,6 @@ const schema = z.object({
   sizeValue: z.number().positive(),
   price: z.number().positive(),
   validity: z.string().optional(),
-  category: z.enum(['daily', 'weekly', 'monthly']),
   badge: z.string().optional(),
   isActive: z.boolean(),
 })
@@ -38,18 +37,18 @@ export default function BundlesPage() {
 
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { network: 'mtn', category: 'monthly', isActive: true },
+    defaultValues: { network: 'mtn', isActive: true },
   })
 
   useEffect(() => {
-    fetch('/api/bundles').then((r) => r.json()).then((d) => setBundles(d.bundles ?? []))
+    fetch('/api/bundles?admin=true').then((r) => r.json()).then((d) => setBundles(d.bundles ?? []))
   }, [])
 
   function openNew() {
     setEditing(null)
     setNoExpiry(false)
     setValidityDays(30)
-    reset({ network: 'mtn', category: 'monthly', isActive: true })
+    reset({ network: 'mtn', isActive: true })
     setOpen(true)
   }
 
@@ -88,6 +87,18 @@ export default function BundlesPage() {
     }
   }
 
+  async function toggleActive(bundle: IBundle) {
+    const res = await fetch(`/api/bundles/${bundle._id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isActive: !bundle.isActive }),
+    })
+    if (res.ok) {
+      setBundles((prev) => prev.map((b) => b._id === bundle._id ? { ...b, isActive: !bundle.isActive } : b))
+      toast.success(bundle.isActive ? 'Bundle hidden from customers' : 'Bundle now visible to customers')
+    }
+  }
+
   async function confirmDelete() {
     if (!deleteId) return
     const res = await fetch(`/api/bundles/${deleteId}`, { method: 'DELETE' })
@@ -122,10 +133,11 @@ export default function BundlesPage() {
               <span className="text-xs text-gray-400 ml-auto">{netBundles.length} bundles</span>
             </div>
             {netBundles.length > 0 ? (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-130">
                 <thead>
                   <tr className="border-b border-gray-50">
-                    {['Size', 'Price', 'Validity', 'Category', 'Badge', 'Active', ''].map((h) => (
+                    {['Size', 'Price', 'Validity', 'Badge', 'Active', ''].map((h) => (
                       <th key={h} className="text-left py-2 px-4 text-xs font-semibold text-gray-400">{h}</th>
                     ))}
                   </tr>
@@ -136,12 +148,14 @@ export default function BundlesPage() {
                       <td className="py-2.5 px-4 font-bold" style={{ color: cfg.primaryColor }}>{b.size}</td>
                       <td className="py-2.5 px-4">{formatPrice(b.price)}</td>
                       <td className="py-2.5 px-4 text-gray-500">{b.validity}</td>
-                      <td className="py-2.5 px-4 capitalize text-gray-500">{b.category}</td>
                       <td className="py-2.5 px-4 text-gray-400">{b.badge ?? '—'}</td>
                       <td className="py-2.5 px-4">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                        <button
+                          onClick={() => toggleActive(b)}
+                          className={`text-xs px-2 py-0.5 rounded-full font-semibold transition-colors cursor-pointer ${b.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                        >
                           {b.isActive ? 'Active' : 'Inactive'}
-                        </span>
+                        </button>
                       </td>
                       <td className="py-2.5 px-4">
                         <div className="flex gap-1">
@@ -153,6 +167,7 @@ export default function BundlesPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             ) : (
               <p className="text-sm text-gray-400 py-5 px-4">No {cfg.label} bundles yet.</p>
             )}
@@ -229,17 +244,6 @@ export default function BundlesPage() {
                   />
                 )}
               </div>
-            </div>
-            <div>
-              <Label>Category</Label>
-              <Select onValueChange={(v) => setValue('category', v as BundleCategory)} defaultValue={editing?.category ?? 'monthly'}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div>
               <Label>Badge (optional)</Label>

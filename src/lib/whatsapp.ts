@@ -1,10 +1,10 @@
 export interface OrderData {
   orderId: string
   orderType: 'bundle' | 'frame'
-  paymentMethod: 'momo_before' | 'momo_request' | 'cash_on_delivery'
+  paymentMethod: 'momo_before' | 'cash_on_delivery'
   customerName: string
   customerPhone: string
-  price: number
+  price: number | null
   note?: string
   // Bundle
   network?: string
@@ -22,6 +22,10 @@ export function buildWhatsAppURL(message: string): string {
   return `https://wa.me/233597473708?text=${encodeURIComponent(message)}`
 }
 
+function displayPrice(price: number | null): string {
+  return price !== null ? `GH¢${price}` : 'Call for price'
+}
+
 // ── BUNDLE TEMPLATES ──
 
 export function bundleMomoBefore(d: OrderData): string {
@@ -29,7 +33,7 @@ export function bundleMomoBefore(d: OrderData): string {
 
 I'd like to order a data bundle:
 
-📦 *Bundle:* ${d.network} ${d.size} — GH¢${d.price}
+📦 *Bundle:* ${d.network} ${d.size} — ${displayPrice(d.price)}
 📱 *Number to receive bundle:* ${d.bundlePhone}
 💳 *Payment:* MoMo Before Delivery
 📞 *Sending MoMo from:* ${d.momoNumber}
@@ -37,22 +41,7 @@ I'd like to order a data bundle:
 📲 *Contact:* ${d.customerPhone}
 🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
 
-I will send GH¢${d.price} to 0597473708 and share the screenshot here. Thank you!`
-}
-
-export function bundleMomoRequest(d: OrderData): string {
-  return `Hello PerfectWave Services! 👋
-
-I'd like to order a data bundle:
-
-📦 *Bundle:* ${d.network} ${d.size} — GH¢${d.price}
-📱 *Number to receive bundle:* ${d.bundlePhone}
-💳 *Payment:* MoMo Request
-📲 *Send MoMo request to:* ${d.customerPhone}
-👤 *Name:* ${d.customerName}
-🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
-
-Please send me a MoMo request of GH¢${d.price} to confirm. Thank you!`
+I will send ${displayPrice(d.price)} to 0597473708 and share the screenshot here. Thank you!`
 }
 
 // ── FRAME TEMPLATES ──
@@ -64,7 +53,7 @@ I'd like to order a picture frame:
 
 🖼️ *Frame:* ${d.frameName}
 📐 *Size:* ${d.frameSize}
-💰 *Price:* GH¢${d.price}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
+💰 *Price:* ${displayPrice(d.price)}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
 💳 *Payment:* MoMo Before Delivery
 📞 *Sending MoMo from:* ${d.momoNumber}
 🏠 *Delivery address:* ${d.deliveryAddress || 'To be confirmed'}
@@ -72,24 +61,7 @@ I'd like to order a picture frame:
 📲 *Contact:* ${d.customerPhone}
 🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
 
-I will send GH¢${d.price} to 0597473708 and share the screenshot. Thank you!`
-}
-
-export function frameMomoRequest(d: OrderData): string {
-  return `Hello PerfectWave Services! 👋
-
-I'd like to order a picture frame:
-
-🖼️ *Frame:* ${d.frameName}
-📐 *Size:* ${d.frameSize}
-💰 *Price:* GH¢${d.price}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
-💳 *Payment:* MoMo Request
-📲 *Send MoMo request to:* ${d.customerPhone}
-🏠 *Delivery address:* ${d.deliveryAddress || 'To be confirmed'}
-👤 *Name:* ${d.customerName}
-🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
-
-Please send me a MoMo request of GH¢${d.price} to confirm. Thank you!`
+I will send ${displayPrice(d.price)} to 0597473708 and share the screenshot. Thank you!`
 }
 
 export function frameCashOnDelivery(d: OrderData): string {
@@ -99,23 +71,21 @@ I'd like to order a picture frame:
 
 🖼️ *Frame:* ${d.frameName}
 📐 *Size:* ${d.frameSize}
-💰 *Price:* GH¢${d.price}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
+💰 *Price:* ${displayPrice(d.price)}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
 💳 *Payment:* Cash on Delivery
 🏠 *Delivery address:* ${d.deliveryAddress}
 👤 *Name:* ${d.customerName}
 📲 *Contact:* ${d.customerPhone}
 🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
 
-I will pay GH¢${d.price} cash on delivery. Thank you!`
+I will pay ${displayPrice(d.price)} cash on delivery. Thank you!`
 }
 
 // ── SELECTOR ──
 
 export function buildWhatsAppMessage(d: OrderData): string {
   if (d.orderType === 'bundle' && d.paymentMethod === 'momo_before') return bundleMomoBefore(d)
-  if (d.orderType === 'bundle' && d.paymentMethod === 'momo_request') return bundleMomoRequest(d)
   if (d.orderType === 'frame'  && d.paymentMethod === 'momo_before') return frameMomoBefore(d)
-  if (d.orderType === 'frame'  && d.paymentMethod === 'momo_request') return frameMomoRequest(d)
   if (d.orderType === 'frame'  && d.paymentMethod === 'cash_on_delivery') return frameCashOnDelivery(d)
   return ''
 }

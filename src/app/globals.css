@@ -151,6 +151,84 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #1B6CA8; border-radius: 3px; }
 
+/* ── Driver.js Tour — PerfectWave brand overrides ── */
+.perfectwave-tour-popover {
+  border: 1px solid #C8DFF0 !important;
+  box-shadow: 0 8px 32px rgba(27, 108, 168, 0.12) !important;
+  font-family: 'Outfit', sans-serif !important;
+  max-width: 320px !important;
+  border-radius: 14px !important;
+}
+.perfectwave-tour-popover .driver-popover-title {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  color: #1A2E42 !important;
+  margin-bottom: 6px !important;
+}
+.perfectwave-tour-popover .driver-popover-description {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: #5A7A99 !important;
+  line-height: 1.6 !important;
+}
+.perfectwave-tour-popover .driver-popover-progress-text {
+  font-size: 11px !important;
+  color: #5A7A99 !important;
+}
+.perfectwave-tour-popover .driver-popover-next-btn {
+  background-color: #1B6CA8 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 7px 16px !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s !important;
+}
+.perfectwave-tour-popover .driver-popover-next-btn:hover {
+  background-color: #0D4F82 !important;
+}
+.perfectwave-tour-popover .driver-popover-prev-btn {
+  background-color: transparent !important;
+  color: #1B6CA8 !important;
+  border: 1.5px solid #1B6CA8 !important;
+  border-radius: 8px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 7px 16px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+.perfectwave-tour-popover .driver-popover-prev-btn:hover {
+  background-color: #EAF3FB !important;
+}
+.perfectwave-tour-popover .driver-popover-done-btn {
+  background-color: #1B6CA8 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 7px 16px !important;
+  cursor: pointer !important;
+}
+.perfectwave-tour-popover .driver-popover-close-btn {
+  color: #5A7A99 !important;
+  font-size: 18px !important;
+}
+.perfectwave-tour-popover .driver-popover-close-btn:hover {
+  color: #1A2E42 !important;
+}
+.driver-active-element {
+  outline: 2.5px solid #1B6CA8 !important;
+  border-radius: 12px !important;
+}
+
 /* Card utility */
 .pw-card {
   background: #ffffff;

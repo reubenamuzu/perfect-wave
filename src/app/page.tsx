@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+export const dynamic = 'force-dynamic'
 import { connectDB } from "@/lib/db";
 import Bundle from "@/models/Bundle";
 import Frame from "@/models/Frame";

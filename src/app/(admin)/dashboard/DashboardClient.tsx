@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { ShoppingBag, Clock, DollarSign, Package } from 'lucide-react'
 import { formatPrice, formatDateTime } from '@/lib/utils'
+import CopyButton from '@/components/shared/CopyButton'
 import type { IOrder, DashboardStats } from '@/types'
 
 interface Props {
@@ -44,7 +45,7 @@ export default function DashboardClient({ stats, recentOrders, chartData }: Prop
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {STAT_CARDS.map(({ key, label, icon: Icon, color }, i) => {
           const value = stats[key as keyof DashboardStats]
           const display = key === 'totalRevenue' ? formatPrice(value as number) : value
@@ -131,7 +132,12 @@ export default function DashboardClient({ stats, recentOrders, chartData }: Prop
               <tbody>
                 {recentOrders.map((order) => (
                   <tr key={order._id} className="border-b border-[#F4F8FC] hover:bg-[#F4F8FC] transition-colors">
-                    <td className="py-2.5 px-3 font-mono text-xs font-medium text-[#1B6CA8]">{order.orderId}</td>
+                    <td className="py-2.5 px-3 font-mono text-xs font-medium text-[#1B6CA8]">
+                      <span className="inline-flex items-center gap-1">
+                        {order.orderId}
+                        <CopyButton value={order.orderId} />
+                      </span>
+                    </td>
                     <td className="py-2.5 px-3 text-[#1A2E42]">{order.customerName}</td>
                     <td className="py-2.5 px-3 font-medium text-[#1A2E42]">{formatPrice(order.totalAmount)}</td>
                     <td className="py-2.5 px-3">

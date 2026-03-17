@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatPrice(amount: number): string {
+export function formatPrice(amount: number | null): string {
+  if (amount === null || amount === undefined) return 'Call for price'
   return `GH¢ ${amount.toFixed(2)}`
 }
 

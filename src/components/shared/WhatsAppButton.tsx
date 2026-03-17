@@ -11,6 +11,7 @@ export default function WhatsAppButton() {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      id="whatsapp-float-btn"
       aria-label="Chat with us on WhatsApp"
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-13 h-13 rounded-full"
       style={{ backgroundColor: '#25D366', boxShadow: '0 4px 16px rgba(37,211,102,0.35)' }}

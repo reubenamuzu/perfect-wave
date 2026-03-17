@@ -19,12 +19,7 @@ export default function NetworkTabs({ bundles }: NetworkTabsProps) {
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkId>(NETWORK_LIST[0].id as NetworkId)
 
   const filtered = useMemo(() => {
-    return bundles.filter(
-      (b) =>
-        b.network === selectedNetwork &&
-        b.category !== 'weekly' 
-        // b.category !== 'hourly'
-    )
+    return bundles.filter((b) => b.network === selectedNetwork)
   }, [bundles, selectedNetwork])
 
   return (

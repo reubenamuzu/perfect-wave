@@ -75,7 +75,7 @@ const OrderSchema = new Schema<OrderDocument>(
     // Payment
     paymentMethod: {
       type: String,
-      enum: ['momo_before', 'momo_request', 'cash_on_delivery'],
+      enum: ['momo_before', 'cash_on_delivery'],
       required: true,
     },
     momoNumber: { type: String },

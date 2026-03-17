@@ -1,11 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Copy, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -26,7 +26,7 @@ import { formatPrice } from '@/lib/utils'
 export interface OrderProduct {
   type: 'bundle' | 'frame'
   name: string
-  price: number
+  price: number | null
   network?: string
   size?: string
   imageUrl?: string
@@ -42,34 +42,36 @@ interface OrderModalProps {
 
 const ghPhone = /^0[2357][0-9]{8}$/
 
-const orderSchema = z
-  .object({
-    customerName: z.string().min(2, 'Enter your name'),
-    customerPhone: z.string().regex(ghPhone, 'Enter a valid Ghana number (e.g. 0597473708)'),
-    bundlePhone: z
-      .string()
-      .regex(ghPhone, 'Enter a valid Ghana number')
-      .optional()
-      .or(z.literal('')),
-    deliveryAddress: z.string().min(5, 'Enter delivery address').optional().or(z.literal('')),
-    paymentMethod: z.enum(['momo_before', 'momo_request', 'cash_on_delivery']),
-    momoNumber: z
-      .string()
-      .regex(ghPhone, 'Enter a valid MoMo number')
-      .optional()
-      .or(z.literal('')),
-    note: z.string().optional(),
-  })
-  .refine(
-    (d) => !(d.paymentMethod === 'momo_before' && !d.momoNumber),
-    { message: 'MoMo number is required', path: ['momoNumber'] }
-  )
-  .refine(
-    (d) => !(d.paymentMethod === 'cash_on_delivery' && !d.deliveryAddress),
-    { message: 'Delivery address is required', path: ['deliveryAddress'] }
-  )
+function createSchema(isFrame: boolean) {
+  return z
+    .object({
+      customerName: z.string().min(2, 'Enter your name'),
+      customerPhone: z.string().regex(ghPhone, 'Enter a valid Ghana number (e.g. 0597473708)'),
+      bundlePhone: z
+        .string()
+        .regex(ghPhone, 'Enter a valid Ghana number')
+        .optional()
+        .or(z.literal('')),
+      deliveryAddress: z.string().optional().or(z.literal('')),
+      paymentMethod: z.enum(['momo_before', 'cash_on_delivery']),
+      momoNumber: z
+        .string()
+        .regex(ghPhone, 'Enter a valid MoMo number')
+        .optional()
+        .or(z.literal('')),
+      note: z.string().optional(),
+    })
+    .refine(
+      (d) => !(!isFrame && d.paymentMethod === 'momo_before' && !d.momoNumber),
+      { message: 'MoMo number is required', path: ['momoNumber'] }
+    )
+    .refine(
+      (d) => !isFrame || (d.deliveryAddress?.trim().length ?? 0) >= 5,
+      { message: 'Delivery address is required', path: ['deliveryAddress'] }
+    )
+}
 
-type FormValues = z.infer<typeof orderSchema>
+type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 // ── Payment option config ──
 
@@ -78,11 +80,6 @@ const PAYMENT_OPTIONS = [
     id: 'momo_before' as const,
     title: 'MoMo Before Delivery',
     description: 'Send GH¢{price} to 0597473708 first, then share screenshot on WhatsApp',
-  },
-  {
-    id: 'momo_request' as const,
-    title: 'MoMo Request',
-    description: "We'll send a MoMo request to your phone after you place the order",
   },
   {
     id: 'cash_on_delivery' as const,
@@ -99,6 +96,14 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
   const [step, setStep] = useState<'form' | 'success'>('form')
   const [orderId, setOrderId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const schema = useMemo(() => createSchema(product.type === 'frame'), [product.type])
+
+  function copyOrderId() {
+    navigator.clipboard.writeText(orderId)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const {
     register,
@@ -108,8 +113,8 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
     setValue,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(orderSchema),
-    defaultValues: { paymentMethod: 'momo_request' },
+    resolver: zodResolver(schema),
+    defaultValues: { paymentMethod: 'momo_before' },
   })
 
   const paymentMethod = watch('paymentMethod')
@@ -336,8 +341,8 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                   })}
                 </div>
 
-                {/* MoMo number — conditional */}
-                {paymentMethod === 'momo_before' && (
+                {/* MoMo number — bundles with MoMo before only */}
+                {paymentMethod === 'momo_before' && product.type === 'bundle' && (
                   <div className="space-y-1">
                     <Label htmlFor="momoNumber" style={{ color: '#1A2E42', fontWeight: 500 }}>
                       Your MoMo number <span className="text-red-500">*</span>
@@ -357,8 +362,8 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                   </div>
                 )}
 
-                {/* Delivery address — COD frames */}
-                {paymentMethod === 'cash_on_delivery' && (
+                {/* Delivery address — all frames */}
+                {product.type === 'frame' && (
                   <div className="space-y-1">
                     <Label htmlFor="deliveryAddress" style={{ color: '#1A2E42', fontWeight: 500 }}>
                       Delivery address <span className="text-red-500">*</span>
@@ -452,12 +457,32 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                 <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#5A7A99' }}>
                   Order ID
                 </p>
-                <p
-                  className="text-lg tracking-wide"
-                  style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1B6CA8' }}
-                >
-                  {orderId}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p
+                    className="text-lg tracking-wide"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1B6CA8' }}
+                  >
+                    {orderId}
+                  </p>
+                  <div className="relative">
+                    <button
+                      onClick={copyOrderId}
+                      className="p-1.5 rounded-lg transition-colors hover:bg-[#C8DFF0]"
+                      style={{ color: '#1B6CA8' }}
+                      aria-label="Copy order ID"
+                    >
+                      {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                    {copied && (
+                      <span
+                        className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] px-2 py-0.5 rounded-md whitespace-nowrap"
+                        style={{ backgroundColor: '#1A2E42', color: '#fff', fontFamily: 'Outfit, sans-serif' }}
+                      >
+                        Copied!
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <p className="text-xs mb-6" style={{ color: '#5A7A99' }}>

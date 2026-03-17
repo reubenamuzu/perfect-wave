@@ -17,7 +17,7 @@ export default function FeaturedFrames({ frames }: FeaturedFramesProps) {
   const [selected, setSelected] = useState<OrderProduct | null>(null)
 
   return (
-    <section className="py-20" style={{ backgroundColor: '#F4F8FC' }}>
+    <section id="frames-section" className="py-20" style={{ backgroundColor: '#F4F8FC' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

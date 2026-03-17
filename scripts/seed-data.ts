@@ -1,6 +1,6 @@
 /**
  * Seed sample bundles and frames.
- * Usage: npx ts-node scripts/seed-data.ts
+ * Usage: npx tsx scripts/seed-data.ts
  */
 import * as dotenv from 'dotenv'
 import * as path from 'path'
@@ -12,7 +12,7 @@ const MONGODB_URI = process.env.MONGODB_URI || ''
 
 const BundleSchema = new mongoose.Schema({
   network: String, size: String, sizeValue: Number, price: Number,
-  validity: String, category: String, badge: String, isActive: Boolean, sortOrder: Number,
+  validity: String, badge: String, isActive: Boolean, sortOrder: Number,
 }, { timestamps: true })
 
 const FrameSchema = new mongoose.Schema({
@@ -23,17 +23,16 @@ const FrameSchema = new mongoose.Schema({
 const Bundle = mongoose.models.Bundle || mongoose.model('Bundle', BundleSchema)
 const Frame = mongoose.models.Frame || mongoose.model('Frame', FrameSchema)
 
-// All networks share the same price structure per flyer
 const BUNDLE_SIZES = [
-  { size: '1GB',  sizeValue: 1,  price: 6,    validity: '1 day',   category: 'daily' },
-  { size: '2GB',  sizeValue: 2,  price: 11,   validity: '2 days',  category: 'daily' },
-  { size: '3GB',  sizeValue: 3,  price: 15,   validity: '7 days',  category: 'weekly' },
-  { size: '4GB',  sizeValue: 4,  price: 19,   validity: '7 days',  category: 'weekly' },
-  { size: '5GB',  sizeValue: 5,  price: 24,   validity: '7 days',  category: 'weekly',  badge: 'Popular' },
-  { size: '10GB', sizeValue: 10, price: 45,   validity: '30 days', category: 'monthly', badge: 'Best value' },
-  { size: '15GB', sizeValue: 15, price: 63,   validity: '30 days', category: 'monthly' },
-  { size: '20GB', sizeValue: 20, price: 85,   validity: '30 days', category: 'monthly' },
-  { size: '30GB', sizeValue: 30, price: null, validity: '30 days', category: 'monthly', badge: 'Call for price' },
+  { size: '1GB',  sizeValue: 1,  price: 6,    validity: '1 day' },
+  { size: '2GB',  sizeValue: 2,  price: 11,   validity: '2 days' },
+  { size: '3GB',  sizeValue: 3,  price: 15,   validity: '7 days' },
+  { size: '4GB',  sizeValue: 4,  price: 19,   validity: '7 days' },
+  { size: '5GB',  sizeValue: 5,  price: 24,   validity: '7 days',  badge: 'Popular' },
+  { size: '10GB', sizeValue: 10, price: 45,   validity: '30 days', badge: 'Best value' },
+  { size: '15GB', sizeValue: 15, price: 63,   validity: '30 days' },
+  { size: '20GB', sizeValue: 20, price: 85,   validity: '30 days' },
+  { size: '30GB', sizeValue: 30, price: null, validity: 'No expiry', badge: 'Call for price' },
 ]
 
 const NETWORKS = ['mtn', 'telecel', 'airteltigo'] as const
@@ -45,9 +44,8 @@ const BUNDLES = NETWORKS.flatMap((network, nIdx) =>
     sizeValue: b.sizeValue,
     price: b.price,
     validity: b.validity,
-    category: b.category,
     badge: b.badge ?? null,
-    isActive: b.price !== null, // mark null-price as inactive until confirmed
+    isActive: b.price !== null,
     sortOrder: nIdx * 100 + bIdx + 1,
   }))
 )
@@ -68,20 +66,17 @@ async function main() {
   await mongoose.connect(MONGODB_URI)
   console.log('✅  Connected to MongoDB')
 
-  const bundleCount = await Bundle.countDocuments()
-  if (bundleCount === 0) {
-    await Bundle.insertMany(BUNDLES)
-    console.log(`✅  Seeded ${BUNDLES.length} bundles (${NETWORKS.length} networks × ${BUNDLE_SIZES.length} sizes)`)
-  } else {
-    console.log(`ℹ️   Bundles already exist (${bundleCount}) — delete collection first to re-seed`)
-  }
+  // Always re-seed bundles (drops existing)
+  await Bundle.deleteMany({})
+  await Bundle.insertMany(BUNDLES)
+  console.log(`✅  Seeded ${BUNDLES.length} bundles (${NETWORKS.length} networks × ${BUNDLE_SIZES.length} sizes)`)
 
   const frameCount = await Frame.countDocuments()
   if (frameCount === 0) {
     await Frame.insertMany(FRAMES)
     console.log(`✅  Seeded ${FRAMES.length} frames`)
   } else {
-    console.log(`ℹ️   Frames already exist (${frameCount})`)
+    console.log(`ℹ️   Frames already exist (${frameCount}) — skipped`)
   }
 
   process.exit(0)

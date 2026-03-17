@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { formatPrice, formatDateTime } from '@/lib/utils'
+import CopyButton from '@/components/shared/CopyButton'
 import type { IOrder, OrderStatus } from '@/types'
 
 const STATUS_OPTIONS: OrderStatus[] = ['pending', 'processing', 'ready', 'delivered', 'cancelled']
@@ -21,7 +22,6 @@ const STATUS_COLORS: Record<string, string> = {
 
 const PAYMENT_BADGES: Record<string, { label: string; bg: string; color: string }> = {
   momo_before:      { label: 'MoMo First', bg: '#EAF3FB', color: '#1B6CA8' },
-  momo_request:     { label: 'MoMo Req.',  bg: '#FFF8E1', color: '#B8860B' },
   cash_on_delivery: { label: 'Cash/COD',   bg: '#F1F5F9', color: '#475569' },
 }
 
@@ -169,10 +169,18 @@ export default function OrdersPage() {
                   const pmBadge = PAYMENT_BADGES[order.paymentMethod ?? '']
                   return (
                     <tr key={order._id} className="border-b border-[#F4F8FC] hover:bg-[#F4F8FC] transition-colors">
-                      <td className="py-3 px-4 font-mono text-xs font-medium text-[#1B6CA8]">{order.orderId}</td>
+                      <td className="py-3 px-4 font-mono text-xs font-medium text-[#1B6CA8]">
+                        <span className="inline-flex items-center gap-1">
+                          {order.orderId}
+                          <CopyButton value={order.orderId} />
+                        </span>
+                      </td>
                       <td className="py-3 px-4">
                         <div className="font-medium text-[#1A2E42]">{order.customerName}</div>
-                        <div className="text-xs text-[#5A7A99]">{order.customerPhone}</div>
+                        <div className="inline-flex items-center gap-1 text-xs text-[#5A7A99]">
+                          {order.customerPhone}
+                          <CopyButton value={order.customerPhone} />
+                        </div>
                       </td>
                       <td className="py-3 px-4 capitalize text-[#5A7A99]">{order.orderType}</td>
                       <td className="py-3 px-4">
@@ -244,10 +252,11 @@ export default function OrdersPage() {
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle
-              className="font-mono text-[#1B6CA8]"
+              className="font-mono text-[#1B6CA8] inline-flex items-center gap-1"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
               {selected?.orderId}
+              {selected && <CopyButton value={selected.orderId} />}
             </DialogTitle>
           </DialogHeader>
           {selected && (
@@ -260,7 +269,10 @@ export default function OrdersPage() {
                 </div>
                 <div>
                   <p className="text-xs text-[#5A7A99] mb-0.5">Phone</p>
-                  <p className="font-medium text-[#1A2E42]">{selected.customerPhone}</p>
+                  <p className="font-medium text-[#1A2E42] inline-flex items-center gap-1">
+                    {selected.customerPhone}
+                    <CopyButton value={selected.customerPhone} />
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#5A7A99] mb-0.5">Order type</p>
@@ -348,7 +360,10 @@ export default function OrdersPage() {
                   {selected.bundlePhone && (
                     <div>
                       <p className="text-xs text-[#5A7A99] mb-0.5">Bundle delivery number</p>
-                      <p className="font-medium text-[#1A2E42]">{selected.bundlePhone}</p>
+                      <p className="font-medium text-[#1A2E42] inline-flex items-center gap-1">
+                        {selected.bundlePhone}
+                        <CopyButton value={selected.bundlePhone} />
+                      </p>
                     </div>
                   )}
                   {selected.deliveryAddress && (

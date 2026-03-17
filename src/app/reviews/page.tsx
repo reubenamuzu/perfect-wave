@@ -68,12 +68,13 @@ export default function ReviewsPage() {
   return (
     <PageTransition>
       <div className="min-h-screen bg-[#F4F8FC]">
-        <div className="bg-[#0D4F82] py-14 px-4">
+        <div className="py-10 px-4 bg-[#F4F8FC]">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl font-semibold text-white mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <p className="text-xs tracking-widest uppercase text-[#1B6CA8] mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>Testimonials</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#1A2E42] mb-1" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               Customer Reviews
             </h1>
-            <p className="text-[#5A7A99]">Real feedback from our customers</p>
+            <p className="text-[#5A7A99]" style={{ fontFamily: 'Outfit, sans-serif' }}>Real feedback from our customers</p>
           </div>
         </div>
 

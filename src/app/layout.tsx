@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
+import "driver.js/dist/driver.css";
 import PublicShell from "@/components/layout/PublicShell";
 import { Toaster } from "@/components/ui/sonner";
 

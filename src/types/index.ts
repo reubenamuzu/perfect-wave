@@ -1,8 +1,7 @@
 export type NetworkId = 'mtn' | 'telecel' | 'airteltigo';
-export type BundleCategory = 'daily' | 'weekly' | 'monthly';
 export type OrderStatus = 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
 export type OrderType = 'bundle' | 'frame';
-export type PaymentMethod = 'momo_before' | 'momo_request' | 'cash_on_delivery';
+export type PaymentMethod = 'momo_before' | 'cash_on_delivery';
 export type ProductType = 'bundle' | 'frame' | 'general';
 export type GalleryCategory = 'frames' | 'custom' | 'showcase';
 export type FrameMaterial = 'Wood' | 'Plastic' | 'Metal';
@@ -12,9 +11,8 @@ export interface IBundle {
   network: NetworkId;
   size: string;
   sizeValue: number;
-  price: number;
+  price: number | null;
   validity: string;
-  category: BundleCategory;
   badge?: string;
   isActive: boolean;
   sortOrder: number;
@@ -37,6 +35,8 @@ export interface IFrame {
 export interface IGalleryItem {
   _id: string;
   imageUrl: string;
+  title: string;
+  description: string;
   caption: string;
   category: GalleryCategory;
   sortOrder: number;

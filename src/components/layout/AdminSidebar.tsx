@@ -38,7 +38,7 @@ export default function AdminSidebar() {
 
   return (
     <aside
-      className="w-60 min-h-screen flex flex-col bg-white"
+      className="w-60 h-full flex flex-col bg-white"
       style={{ borderRight: '1px solid #C8DFF0' }}
     >
       {/* Logo */}
