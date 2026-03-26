@@ -24,6 +24,13 @@ export function formatDate(dateStr: string): string {
   })
 }
 
+export function getCloudinaryDownloadUrl(url: string): string {
+  return url.replace(
+    /\/image\/upload\/[^/]+\//,
+    '/image/upload/fl_attachment,q_100/'
+  )
+}
+
 export function formatDateTime(dateStr: string): string {
   return new Date(dateStr).toLocaleString('en-GH', {
     day: 'numeric',

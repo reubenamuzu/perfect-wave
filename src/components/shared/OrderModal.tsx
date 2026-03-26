@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, Copy, Check } from 'lucide-react'
+import { CheckCircle2, Copy, Check, ImagePlus, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -92,6 +92,26 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
   const [orderId, setOrderId] = useState('')
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [frameImageUrl, setFrameImageUrl] = useState(product.imageUrl ?? '')
+  const [uploading, setUploading] = useState(false)
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: form })
+      const data = await res.json()
+      if (data.url) setFrameImageUrl(data.url)
+      else toast.error('Upload failed, please try again')
+    } catch {
+      toast.error('Upload failed, please try again')
+    } finally {
+      setUploading(false)
+    }
+  }
   const schema = useMemo(() => createSchema(product.type === 'frame'), [product.type])
 
   function copyOrderId() {
@@ -121,6 +141,7 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
       reset()
       setStep('form')
       setOrderId('')
+      setFrameImageUrl(product.imageUrl ?? '')
     }, 300)
   }
 
@@ -135,6 +156,7 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
           size: product.size,
           price: product.price,
           quantity: 1,
+          uploadedImageUrl: product.type === 'frame' ? (frameImageUrl || undefined) : undefined,
         },
       ]
 
@@ -175,7 +197,7 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
         // Frame
         frameName: product.type === 'frame' ? product.name : undefined,
         frameSize: product.size,
-        imageUrl: product.imageUrl,
+        imageUrl: product.type === 'frame' ? (frameImageUrl || undefined) : undefined,
         deliveryAddress: data.deliveryAddress || undefined,
         momoAccountName: data.momoAccountName || undefined,
         momoPaymentNumber: momoNumber,
@@ -265,6 +287,64 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                     <p className="text-xs text-red-500">{errors.customerPhone.message}</p>
                   )}
                 </div>
+
+                {/* Photo upload — frames only */}
+                {product.type === 'frame' && (
+                  <div className="space-y-1.5">
+                    <Label style={{ color: '#1A2E42', fontWeight: 500 }}>
+                      Your photo{' '}
+                      <span className="font-normal" style={{ color: '#5A7A99' }}>(optional)</span>
+                    </Label>
+
+                    {frameImageUrl ? (
+                      <div className="relative rounded-xl overflow-hidden border border-[#C8DFF0]">
+                        <img
+                          src={frameImageUrl}
+                          alt="Uploaded photo"
+                          className="w-full object-cover max-h-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFrameImageUrl('')}
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+                          aria-label="Remove photo"
+                        >
+                          <X className="w-3.5 h-3.5 text-white" />
+                        </button>
+                        <label
+                          className="absolute bottom-2 right-2 text-xs font-medium px-2.5 py-1 rounded-lg cursor-pointer"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff' }}
+                        >
+                          Change photo
+                          <input type="file" accept="image/*,.heic" className="sr-only" onChange={handlePhotoUpload} />
+                        </label>
+                      </div>
+                    ) : (
+                      <label
+                        className={cn(
+                          'flex flex-col items-center gap-2 rounded-xl border-2 border-dashed px-4 py-5 cursor-pointer transition-colors',
+                          uploading ? 'opacity-60 pointer-events-none' : 'hover:bg-[#F4F8FC]'
+                        )}
+                        style={{ borderColor: '#C8DFF0' }}
+                      >
+                        {uploading ? (
+                          <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#1B6CA8' }} />
+                        ) : (
+                          <ImagePlus className="w-6 h-6" style={{ color: '#1B6CA8' }} />
+                        )}
+                        <span className="text-sm" style={{ color: '#5A7A99' }}>
+                          {uploading ? 'Uploading…' : 'Tap to upload your photo'}
+                        </span>
+                        <span className="text-xs" style={{ color: '#A0B4C8' }}>JPG, PNG, HEIC</span>
+                        <input type="file" accept="image/*,.heic" className="sr-only" onChange={handlePhotoUpload} disabled={uploading} />
+                      </label>
+                    )}
+                    <p className="text-xs" style={{ color: '#5A7A99' }}>
+                      Upload the photo you want printed on your frame
+                    </p>
+                  </div>
+                )}
 
                 {/* Bundle phone — bundles only */}
                 {product.type === 'bundle' && (

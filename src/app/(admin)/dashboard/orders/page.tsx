@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { formatPrice, formatDateTime } from '@/lib/utils'
+import { formatPrice, formatDateTime, getCloudinaryDownloadUrl } from '@/lib/utils'
 import CopyButton from '@/components/shared/CopyButton'
 import type { IOrder, OrderStatus } from '@/types'
 
@@ -296,6 +296,35 @@ export default function OrdersPage() {
                   ))}
                 </ul>
               </div>
+
+              {/* Customer photo — frame orders only */}
+              {selected.items.some((item) => item.uploadedImageUrl) && (
+                <div>
+                  <p className="text-xs text-[#5A7A99] mb-1.5">Customer's uploaded photo</p>
+                  {selected.items.filter((item) => item.uploadedImageUrl).map((item, i) => (
+                    <div key={i} className="rounded-xl overflow-hidden border border-[#C8DFF0]">
+                      <img
+                        src={item.uploadedImageUrl}
+                        alt="Customer uploaded frame photo"
+                        className="w-full object-cover max-h-64"
+                      />
+                      <div className="px-3 py-2 bg-[#F4F8FC] flex items-center justify-between">
+                        <span className="text-xs text-[#5A7A99]">{item.productName}</span>
+                        <a
+                          href={getCloudinaryDownloadUrl(item.uploadedImageUrl!)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-colors"
+                          style={{ backgroundColor: '#1B6CA8' }}
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          Download Full Quality
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Payment section */}
               <div
