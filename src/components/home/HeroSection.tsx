@@ -108,7 +108,7 @@ export default function HeroSection() {
               className="text-base lg:text-lg text-[#5A7A99] leading-relaxed mb-8 max-w-md"
               style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}
             >
-              PerfectWave Services brings you affordable MTN, Telecel &amp; AirtelTigo data
+              PerfectWave Enterprise brings you affordable MTN, Telecel &amp; AirtelTigo data
               bundles alongside premium custom picture frames — all in one place.
             </motion.p>
 

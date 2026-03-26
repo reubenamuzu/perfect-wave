@@ -4,6 +4,7 @@ import { Info, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import CopyButton from '@/components/shared/CopyButton'
+import { useSettings } from '@/components/shared/SettingsContext'
 
 const STEPS = [
   {
@@ -35,6 +36,7 @@ const STEPS = [
 
 export default function HowToOrderModal() {
   const [open, setOpen] = useState(false)
+  const { momoNumber } = useSettings()
 
   return (
     <>
@@ -51,8 +53,8 @@ export default function HowToOrderModal() {
           <p style={{ fontFamily: 'Outfit, sans-serif', color: '#5A7A99', fontWeight: 400 }}>
             Pay via MoMo to{' '}
             <span className="inline-flex items-center gap-0.5">
-              <span className="text-base font-semibold" style={{ color: '#1B6CA8' }}>0597473708</span>
-              <CopyButton value="0597473708" />
+              <span className="text-base font-semibold" style={{ color: '#1B6CA8' }}>{momoNumber}</span>
+              <CopyButton value={momoNumber} />
             </span>
             {' '}before delivery · Cash on delivery available for picture frames · No online card payments
           </p>
@@ -131,8 +133,8 @@ export default function HowToOrderModal() {
                       <>
                         {step.description.split('__MOMO__')[0]}
                         <span className="inline-flex items-center gap-0.5">
-                          <span className="text-sm font-semibold" style={{ color: '#1B6CA8' }}>0597473708</span>
-                          <CopyButton value="0597473708" />
+                          <span className="text-sm font-semibold" style={{ color: '#1B6CA8' }}>{momoNumber}</span>
+                          <CopyButton value={momoNumber} />
                         </span>
                         {step.description.split('__MOMO__')[1]}
                       </>

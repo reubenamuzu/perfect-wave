@@ -19,7 +19,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { buildWhatsAppMessage, buildWhatsAppURL } from '@/lib/whatsapp'
+import CopyButton from '@/components/shared/CopyButton'
 import { formatPrice } from '@/lib/utils'
+import { useSettings } from '@/components/shared/SettingsContext'
 
 // ── Types ──
 
@@ -54,17 +56,9 @@ function createSchema(isFrame: boolean) {
         .or(z.literal('')),
       deliveryAddress: z.string().optional().or(z.literal('')),
       paymentMethod: z.enum(['momo_before', 'cash_on_delivery']),
-      momoNumber: z
-        .string()
-        .regex(ghPhone, 'Enter a valid MoMo number')
-        .optional()
-        .or(z.literal('')),
+      momoAccountName: z.string().optional().or(z.literal('')),
       note: z.string().optional(),
     })
-    .refine(
-      (d) => !(!isFrame && d.paymentMethod === 'momo_before' && !d.momoNumber),
-      { message: 'MoMo number is required', path: ['momoNumber'] }
-    )
     .refine(
       (d) => !isFrame || (d.deliveryAddress?.trim().length ?? 0) >= 5,
       { message: 'Delivery address is required', path: ['deliveryAddress'] }
@@ -79,7 +73,7 @@ const PAYMENT_OPTIONS = [
   {
     id: 'momo_before' as const,
     title: 'MoMo Before Delivery',
-    description: 'Send GH¢{price} to 0597473708 first, then share screenshot on WhatsApp',
+    description: 'Send GH¢{price} to {momo} first, then share screenshot on WhatsApp',
   },
   {
     id: 'cash_on_delivery' as const,
@@ -93,6 +87,7 @@ const PAYMENT_OPTIONS = [
 
 export default function OrderModal({ isOpen, onClose, product }: OrderModalProps) {
   const router = useRouter()
+  const { momoNumber, whatsappNumber } = useSettings()
   const [step, setStep] = useState<'form' | 'success'>('form')
   const [orderId, setOrderId] = useState('')
   const [loading, setLoading] = useState(false)
@@ -149,7 +144,7 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
         orderType: product.type,
         items,
         paymentMethod: data.paymentMethod,
-        momoNumber: data.momoNumber || undefined,
+        momoAccountName: data.momoAccountName || undefined,
         bundlePhone: data.bundlePhone || undefined,
         deliveryAddress: data.deliveryAddress || undefined,
         note: data.note || undefined,
@@ -182,11 +177,12 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
         frameSize: product.size,
         imageUrl: product.imageUrl,
         deliveryAddress: data.deliveryAddress || undefined,
-        momoNumber: data.momoNumber || undefined,
+        momoAccountName: data.momoAccountName || undefined,
+        momoPaymentNumber: momoNumber,
       }
 
       const message = buildWhatsAppMessage(msgData)
-      window.open(buildWhatsAppURL(message), '_blank')
+      window.open(buildWhatsAppURL(message, whatsappNumber), '_blank')
 
       setOrderId(order.orderId)
       setStep('success')
@@ -291,74 +287,91 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                   </div>
                 )}
 
-                {/* Payment method */}
-                <div className="space-y-2">
-                  <p className="text-sm" style={{ color: '#1A2E42', fontWeight: 500 }}>
-                    How would you like to pay? <span className="text-red-500">*</span>
-                  </p>
-                  {visiblePaymentOptions.map((opt) => {
-                    const isSelected = paymentMethod === opt.id
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setValue('paymentMethod', opt.id, { shouldValidate: true })}
-                        className={cn(
-                          'w-full text-left rounded-xl border px-4 py-3 transition-all duration-150',
-                          isSelected
-                            ? 'border-[#1B6CA8] bg-[#EAF3FB]'
-                            : 'border-[#C8DFF0] bg-white hover:bg-[#F4F8FC]'
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={cn(
-                              'mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center',
-                              isSelected ? 'border-[#1B6CA8]' : 'border-[#C8DFF0]'
-                            )}
-                          >
-                            {isSelected && (
-                              <div className="w-2 h-2 rounded-full bg-[#1B6CA8]" />
-                            )}
-                          </div>
-                          <div>
-                            <p
-                              className="text-sm leading-tight"
-                              style={{
-                                color: isSelected ? '#1A2E42' : '#5A7A99',
-                                fontWeight: isSelected ? 500 : 400,
-                              }}
+                {/* Payment — notice for bundles, selector for frames */}
+                {product.type === 'bundle' ? (
+                  <div
+                    className="rounded-xl border px-4 py-3 text-sm"
+                    style={{ backgroundColor: '#EAF3FB', borderColor: '#C8DFF0' }}
+                  >
+                    <p className="font-medium mb-0.5" style={{ color: '#1A2E42' }}>
+                      💳 Payment — MoMo Before Delivery
+                    </p>
+                    <p style={{ color: '#5A7A99' }}>
+                      Send{product.price ? ` GH¢${product.price}` : ' payment'} to{' '}
+                      <span className="inline-flex items-center gap-0.5">
+                        <span className="font-semibold" style={{ color: '#1B6CA8' }}>{momoNumber}</span>
+                        <CopyButton value={momoNumber} />
+                      </span>
+                      , then share the screenshot on WhatsApp to confirm your order.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm" style={{ color: '#1A2E42', fontWeight: 500 }}>
+                      How would you like to pay? <span className="text-red-500">*</span>
+                    </p>
+                    {visiblePaymentOptions.map((opt) => {
+                      const isSelected = paymentMethod === opt.id
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setValue('paymentMethod', opt.id, { shouldValidate: true })}
+                          className={cn(
+                            'w-full text-left rounded-xl border px-4 py-3 transition-all duration-150',
+                            isSelected
+                              ? 'border-[#1B6CA8] bg-[#EAF3FB]'
+                              : 'border-[#C8DFF0] bg-white hover:bg-[#F4F8FC]'
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={cn(
+                                'mt-0.5 w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center',
+                                isSelected ? 'border-[#1B6CA8]' : 'border-[#C8DFF0]'
+                              )}
                             >
-                              {opt.title}
-                            </p>
-                            <p className="text-xs mt-0.5" style={{ color: '#5A7A99' }}>
-                              {opt.description.replace('{price}', String(product.price))}
-                            </p>
+                              {isSelected && (
+                                <div className="w-2 h-2 rounded-full bg-[#1B6CA8]" />
+                              )}
+                            </div>
+                            <div>
+                              <p
+                                className="text-sm leading-tight"
+                                style={{
+                                  color: isSelected ? '#1A2E42' : '#5A7A99',
+                                  fontWeight: isSelected ? 500 : 400,
+                                }}
+                              >
+                                {opt.title}
+                              </p>
+                              <p className="text-xs mt-0.5" style={{ color: '#5A7A99' }}>
+                                {opt.description.replace('{price}', String(product.price)).replace('{momo}', momoNumber)}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
 
-                {/* MoMo number — bundles with MoMo before only */}
-                {paymentMethod === 'momo_before' && product.type === 'bundle' && (
+                {/* MoMo Account Name — bundles only */}
+                {product.type === 'bundle' && (
                   <div className="space-y-1">
-                    <Label htmlFor="momoNumber" style={{ color: '#1A2E42', fontWeight: 500 }}>
-                      Your MoMo number <span className="text-red-500">*</span>
+                    <Label htmlFor="momoAccountName" style={{ color: '#1A2E42', fontWeight: 500 }}>
+                      MoMo Account Name{' '}
+                      <span className="font-normal" style={{ color: '#5A7A99' }}>(optional)</span>
                     </Label>
                     <Input
-                      id="momoNumber"
-                      {...register('momoNumber')}
-                      placeholder="Number you'll send from"
+                      id="momoAccountName"
+                      {...register('momoAccountName')}
+                      placeholder="Name on your MoMo account"
                       className="border-[#C8DFF0] focus-visible:ring-[#1B6CA8]"
                     />
                     <p className="text-xs" style={{ color: '#5A7A99' }}>
-                      So we can confirm your payment
+                      Helps us confirm your payment by sender name
                     </p>
-                    {errors.momoNumber && (
-                      <p className="text-xs text-red-500">{errors.momoNumber.message}</p>
-                    )}
                   </div>
                 )}
 

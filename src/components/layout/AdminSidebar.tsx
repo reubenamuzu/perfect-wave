@@ -44,7 +44,7 @@ export default function AdminSidebar() {
       {/* Logo */}
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #C8DFF0' }}>
         <Link href="/dashboard" aria-label="Admin dashboard">
-          <PerfectWaveLogo size="sm" variant="dark" />
+          <PerfectWaveLogo size="sm" />
         </Link>
       </div>
 

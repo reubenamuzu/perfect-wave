@@ -10,6 +10,7 @@ export default function CopyButton({ value }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy(e: React.MouseEvent) {
+    e.preventDefault()
     e.stopPropagation()
     navigator.clipboard.writeText(value)
     setCopied(true)
@@ -19,6 +20,7 @@ export default function CopyButton({ value }: CopyButtonProps) {
   return (
     <span className="relative inline-flex items-center">
       <button
+        type="button"
         onClick={handleCopy}
         className="p-1 rounded transition-colors hover:bg-[#C8DFF0]"
         style={{ color: copied ? undefined : '#1B6CA8' }}

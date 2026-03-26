@@ -46,3 +46,6 @@ coverage/
 *.pem
 .cache/
 .claude/
+
+claude.md
+MEMORY.md

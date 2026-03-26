@@ -1,15 +1,129 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Loader2, KeyRound, Eye, EyeOff } from 'lucide-react'
+import { Loader2, KeyRound, Eye, EyeOff, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const schema = z
+// ── Business Settings ──
+
+const businessSchema = z.object({
+  momoNumber: z.string().min(1, 'MoMo number is required'),
+  whatsappNumber: z.string().min(1, 'WhatsApp number is required'),
+})
+type BusinessFormData = z.infer<typeof businessSchema>
+
+function BusinessSettingsCard() {
+  const [loading, setLoading] = useState(false)
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<BusinessFormData>({
+    resolver: zodResolver(businessSchema),
+  })
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.momoNumber) reset(data)
+      })
+      .catch(() => {/* keep empty */})
+  }, [reset])
+
+  async function onSubmit(data: BusinessFormData) {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const json = await res.json()
+      if (res.ok) {
+        toast.success('Business settings saved')
+      } else {
+        toast.error(json.error ?? 'Failed to save settings')
+      }
+    } catch {
+      toast.error('Network error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: '#EAF3FB' }}
+        >
+          <Settings2 className="w-5 h-5 text-[#1B6CA8]" />
+        </div>
+        <div>
+          <h2
+            className="text-xl font-semibold text-[#1A2E42]"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            Business Settings
+          </h2>
+          <p className="text-sm text-[#5A7A99]">Update your MoMo and WhatsApp contact numbers</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#C8DFF0]">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Label htmlFor="momoNumber">MoMo Payment Number</Label>
+            <Input
+              id="momoNumber"
+              {...register('momoNumber')}
+              placeholder="e.g. 0558373809"
+              className="mt-1"
+            />
+            {errors.momoNumber && (
+              <p className="text-xs text-red-500 mt-1">{errors.momoNumber.message}</p>
+            )}
+            <p className="text-xs text-[#5A7A99] mt-1">
+              Displayed in the order modal and "How to Order" guide
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="whatsappNumber">WhatsApp Order Number</Label>
+            <Input
+              id="whatsappNumber"
+              {...register('whatsappNumber')}
+              placeholder="e.g. 233597473708 (international format)"
+              className="mt-1"
+            />
+            {errors.whatsappNumber && (
+              <p className="text-xs text-red-500 mt-1">{errors.whatsappNumber.message}</p>
+            )}
+            <p className="text-xs text-[#5A7A99] mt-1">
+              Use international format without + (e.g. 233XXXXXXXXX for Ghana)
+            </p>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#1B6CA8] hover:bg-[#0D4F82] text-white gap-2 mt-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Save Settings
+          </Button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ── Password ──
+
+const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
     newPassword: z.string().min(8, 'New password must be at least 8 characters'),
@@ -20,13 +134,13 @@ const schema = z
     path: ['confirmPassword'],
   })
 
-type FormData = z.infer<typeof schema>
+type PasswordFormData = z.infer<typeof passwordSchema>
 
 function PasswordInput({ id, placeholder, autoComplete, registration, error }: {
   id: string
   placeholder?: string
   autoComplete?: string
-  registration: ReturnType<ReturnType<typeof useForm<FormData>>['register']>
+  registration: ReturnType<ReturnType<typeof useForm<PasswordFormData>>['register']>
   error?: string
 }) {
   const [show, setShow] = useState(false)
@@ -55,13 +169,13 @@ function PasswordInput({ id, placeholder, autoComplete, registration, error }: {
   )
 }
 
-export default function SettingsPage() {
+function ChangePasswordCard() {
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
   })
 
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: PasswordFormData) {
     setLoading(true)
     try {
       const res = await fetch('/api/auth/change-password', {
@@ -87,7 +201,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-md">
+    <>
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -96,12 +210,12 @@ export default function SettingsPage() {
           <KeyRound className="w-5 h-5 text-[#1B6CA8]" />
         </div>
         <div>
-          <h1
+          <h2
             className="text-xl font-semibold text-[#1A2E42]"
             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
           >
             Change Password
-          </h1>
+          </h2>
           <p className="text-sm text-[#5A7A99]">Update your admin account password</p>
         </div>
       </div>
@@ -151,6 +265,15 @@ export default function SettingsPage() {
           </Button>
         </form>
       </div>
+    </>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <div className="p-6 max-w-md">
+      <BusinessSettingsCard />
+      <ChangePasswordCard />
     </div>
   )
 }

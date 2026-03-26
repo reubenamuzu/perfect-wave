@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           style={{ borderBottom: '1px solid #C8DFF0' }}
         >
           <Link href="/dashboard">
-            <PerfectWaveLogo size="sm" variant="dark" />
+            <PerfectWaveLogo size="sm" />
           </Link>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <SheetHeader className="px-5 py-4 border-b border-[#C8DFF0]">
                 <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
                 <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                  <PerfectWaveLogo size="sm" variant="dark" />
+                  <PerfectWaveLogo size="sm" />
                 </Link>
               </SheetHeader>
 

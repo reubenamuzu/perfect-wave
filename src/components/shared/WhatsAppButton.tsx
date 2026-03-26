@@ -2,9 +2,11 @@
 import { motion } from 'framer-motion'
 import { MessageCircle } from 'lucide-react'
 import { buildWhatsAppURL } from '@/lib/whatsapp'
+import { useSettings } from '@/components/shared/SettingsContext'
 
 export default function WhatsAppButton() {
-  const url = buildWhatsAppURL('Hello! I would like to place an order.')
+  const { whatsappNumber } = useSettings()
+  const url = buildWhatsAppURL('Hello! I would like to place an order.', whatsappNumber)
 
   return (
     <motion.a

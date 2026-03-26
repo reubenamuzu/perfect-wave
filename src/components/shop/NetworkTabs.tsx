@@ -79,7 +79,7 @@ export default function NetworkTabs({ bundles }: NetworkTabsProps) {
         Select Bundle
       </p>
 
-      <BundleGrid bundles={filtered} />
+      <BundleGrid bundles={filtered} network={NETWORK_FILTERS.find(f => f.id === selectedNetwork)?.label ?? selectedNetwork} />
     </div>
   )
 }

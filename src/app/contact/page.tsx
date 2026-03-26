@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { buildWhatsAppURL, generalInquiryMessage } from '@/lib/whatsapp'
+import { useSettings } from '@/components/shared/SettingsContext'
 
 const schema = z.object({
   name: z.string().min(2),
@@ -30,6 +31,7 @@ const SUBJECT_LABELS: Record<string, string> = {
 }
 
 export default function ContactPage() {
+  const { momoNumber, whatsappNumber } = useSettings()
   const {
     register,
     handleSubmit,
@@ -48,7 +50,7 @@ export default function ContactPage() {
 
   function onSubmit(data: FormData) {
     const text = generalInquiryMessage(data.name, SUBJECT_LABELS[data.subject], data.message)
-    window.open(buildWhatsAppURL(text), '_blank')
+    window.open(buildWhatsAppURL(text, whatsappNumber), '_blank')
     toast.success('Opening WhatsApp with your message!')
     reset()
   }
@@ -97,7 +99,7 @@ export default function ContactPage() {
                   Send MoMo First
                 </h3>
                 <p className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#5A7A99', fontWeight: 400 }}>
-                  Send your payment to 0597473708, share the screenshot on WhatsApp, and we&apos;ll
+                  Send your payment to {momoNumber}, share the screenshot on WhatsApp, and we&apos;ll
                   process your order right away.
                 </p>
               </div>
@@ -178,7 +180,7 @@ export default function ContactPage() {
               </div>
 
               <a
-                href={buildWhatsAppURL('Hello! I have a question.')}
+                href={buildWhatsAppURL('Hello! I have a question.', whatsappNumber)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 bg-[#25D366] text-white rounded-xl p-4 font-medium hover:bg-[#20ba5a] transition-colors"

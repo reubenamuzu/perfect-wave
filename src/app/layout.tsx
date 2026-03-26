@@ -4,6 +4,7 @@ import "./globals.css";
 import "driver.js/dist/driver.css";
 import PublicShell from "@/components/layout/PublicShell";
 import { TourProvider } from "@/components/shared/SiteTour";
+import { SettingsProvider } from "@/components/shared/SettingsContext";
 import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -20,14 +21,14 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "PerfectWave Services — Data Bundles & Picture Frames in Ghana",
-    template: "%s | PerfectWave Services",
+    default: "PerfectWave Enterprise — Data Bundles & Picture Frames in Ghana",
+    template: "%s | PerfectWave Enterprise",
   },
   description:
     "Buy affordable MTN, Telecel & AirtelTigo data bundles and premium custom picture frames in Ghana. Fast delivery, great prices.",
   keywords: ["data bundles Ghana", "MTN bundles", "Telecel bundles", "picture frames Ghana", "custom frames"],
   openGraph: {
-    title: "PerfectWave Services — Data Bundles & Picture Frames",
+    title: "PerfectWave Enterprise — Data Bundles & Picture Frames",
     description: "Shop data bundles and custom picture frames in Ghana",
     type: "website",
     locale: "en_GH",
@@ -50,10 +51,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${plusJakartaSans.variable} ${outfit.variable} antialiased`}>
-        <TourProvider>
-          <PublicShell />
-          <main>{children}</main>
-        </TourProvider>
+        <SettingsProvider>
+          <TourProvider>
+            <PublicShell />
+            <main>{children}</main>
+          </TourProvider>
+        </SettingsProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

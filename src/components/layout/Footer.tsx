@@ -1,9 +1,12 @@
+'use client'
 import Link from 'next/link'
-import { Phone, Mail, MapPin, MessageCircle, Facebook, Instagram } from 'lucide-react'
+import { Phone, MapPin, MessageCircle, Facebook, Instagram } from 'lucide-react'
 import { buildWhatsAppURL } from '@/lib/whatsapp'
+import { useSettings } from '@/components/shared/SettingsContext'
 import PerfectWaveLogo from '@/components/shared/PerfectWaveLogo'
 
 export default function Footer() {
+  const { whatsappNumber } = useSettings()
   return (
     <footer style={{ backgroundColor: '#0D4F82' }} className="text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -11,8 +14,8 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" aria-label="PerfectWave Services home">
-              <PerfectWaveLogo size="md" variant="light" />
+            <Link href="/" aria-label="PerfectWave Enterprise home">
+              <PerfectWaveLogo size="md" />
             </Link>
             <p
               className="text-sm leading-relaxed"
@@ -47,7 +50,7 @@ export default function Footer() {
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href={buildWhatsAppURL('Hello!')}
+                href={buildWhatsAppURL('Hello!', whatsappNumber)}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -155,7 +158,7 @@ export default function Footer() {
               <li className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 shrink-0" style={{ color: '#25D366' }} />
                 <a
-                  href={buildWhatsAppURL('Hello! I would like to place an order.')}
+                  href={buildWhatsAppURL('Hello! I would like to place an order.', whatsappNumber)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: 'rgba(255,255,255,0.7)' }}
@@ -180,7 +183,7 @@ export default function Footer() {
           className="mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs"
           style={{ borderTop: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)', fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}
         >
-          <p>© {new Date().getFullYear()} PerfectWave Services. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} PerfectWave Enterprise. All rights reserved.</p>
           <p>Ride the wave of smart connections 🌊</p>
         </div>
       </div>

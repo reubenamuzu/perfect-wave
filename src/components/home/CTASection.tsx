@@ -2,8 +2,10 @@
 import { motion } from 'framer-motion'
 import { MessageCircle } from 'lucide-react'
 import { buildWhatsAppURL } from '@/lib/whatsapp'
+import { useSettings } from '@/components/shared/SettingsContext'
 
 export default function CTASection() {
+  const { whatsappNumber } = useSettings()
   return (
     <section className="py-16" style={{ backgroundColor: '#EAF3FB' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -32,7 +34,7 @@ export default function CTASection() {
             Chat with us directly on WhatsApp — we respond within minutes.
           </p>
           <motion.a
-            href={buildWhatsAppURL('Hello! I would like to place an order.')}
+            href={buildWhatsAppURL('Hello! I would like to place an order.', whatsappNumber)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 text-white px-8 py-3.5 rounded-[10px] text-sm transition-colors"

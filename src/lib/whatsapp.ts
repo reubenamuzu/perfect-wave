@@ -15,11 +15,13 @@ export interface OrderData {
   frameSize?: string
   imageUrl?: string
   deliveryAddress?: string
-  momoNumber?: string
+  momoAccountName?: string
+  // Dynamic settings
+  momoPaymentNumber?: string
 }
 
-export function buildWhatsAppURL(message: string): string {
-  return `https://wa.me/233597473708?text=${encodeURIComponent(message)}`
+export function buildWhatsAppURL(message: string, whatsappNumber = '233597473708'): string {
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
 }
 
 function displayPrice(price: number | null): string {
@@ -29,25 +31,24 @@ function displayPrice(price: number | null): string {
 // ── BUNDLE TEMPLATES ──
 
 export function bundleMomoBefore(d: OrderData): string {
-  return `Hello PerfectWave Services! 👋
+  return `Hello PerfectWave Enterprise! 👋
 
 I'd like to order a data bundle:
 
 📦 *Bundle:* ${d.network} ${d.size} — ${displayPrice(d.price)}
 📱 *Number to receive bundle:* ${d.bundlePhone}
-💳 *Payment:* MoMo Before Delivery
-📞 *Sending MoMo from:* ${d.momoNumber}
+💳 *Payment:* MoMo Before Delivery${d.momoAccountName ? `\n👤 *MoMo Account Name:* ${d.momoAccountName}` : ''}
 👤 *Name:* ${d.customerName}
 📲 *Contact:* ${d.customerPhone}
 🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
 
-I will send ${displayPrice(d.price)} to 0597473708 and share the screenshot here. Thank you!`
+I will send ${displayPrice(d.price)} to ${d.momoPaymentNumber ?? '0558373809'} and share the screenshot here. Thank you!`
 }
 
 // ── FRAME TEMPLATES ──
 
 export function frameMomoBefore(d: OrderData): string {
-  return `Hello PerfectWave Services! 👋
+  return `Hello PerfectWave Enterprise! 👋
 
 I'd like to order a picture frame:
 
@@ -55,17 +56,16 @@ I'd like to order a picture frame:
 📐 *Size:* ${d.frameSize}
 💰 *Price:* ${displayPrice(d.price)}${d.imageUrl ? `\n📸 *My photo:* ${d.imageUrl}` : ''}
 💳 *Payment:* MoMo Before Delivery
-📞 *Sending MoMo from:* ${d.momoNumber}
 🏠 *Delivery address:* ${d.deliveryAddress || 'To be confirmed'}
 👤 *Name:* ${d.customerName}
 📲 *Contact:* ${d.customerPhone}
 🔖 *Order ID:* ${d.orderId}${d.note ? `\n📝 *Note:* ${d.note}` : ''}
 
-I will send ${displayPrice(d.price)} to 0597473708 and share the screenshot. Thank you!`
+I will send ${displayPrice(d.price)} to ${d.momoPaymentNumber ?? '0558373809'} and share the screenshot. Thank you!`
 }
 
 export function frameCashOnDelivery(d: OrderData): string {
-  return `Hello PerfectWave Services! 👋
+  return `Hello PerfectWave Enterprise! 👋
 
 I'd like to order a picture frame:
 

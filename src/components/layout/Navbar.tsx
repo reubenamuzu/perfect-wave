@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { buildWhatsAppURL } from "@/lib/whatsapp";
+import { useSettings } from "@/components/shared/SettingsContext";
 import { cn } from "@/lib/utils";
 import PerfectWaveLogo from "@/components/shared/PerfectWaveLogo";
 import {
@@ -60,6 +61,7 @@ export default function Navbar() {
   }, []);
 
   const moreIsActive = MORE_LINKS.some((l) => l.href === pathname);
+  const { whatsappNumber } = useSettings();
 
   return (
     <header
@@ -74,8 +76,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" aria-label="PerfectWave Services home">
-            <PerfectWaveLogo size="md" variant="dark" />
+          <Link href="/" aria-label="PerfectWave Enterprise home">
+            <PerfectWaveLogo size="md" />
           </Link>
 
           {/* Desktop nav */}
@@ -151,7 +153,7 @@ export default function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-2">
             <a
-              href={buildWhatsAppURL("Hello! I want to place an order.")}
+              href={buildWhatsAppURL("Hello! I want to place an order.", whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Order on WhatsApp"
@@ -198,7 +200,7 @@ export default function Navbar() {
                 <SheetHeader className="px-5 py-4 border-b border-[#C8DFF0]">
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <Link href="/" onClick={() => setSheetOpen(false)}>
-                    <PerfectWaveLogo size="sm" variant="dark" />
+                    <PerfectWaveLogo size="sm" />
                   </Link>
                 </SheetHeader>
 
@@ -255,7 +257,7 @@ export default function Navbar() {
                     Admin Dashboard
                   </Link>
                   <a
-                    href={buildWhatsAppURL("Hello! I want to place an order.")}
+                    href={buildWhatsAppURL("Hello! I want to place an order.", whatsappNumber)}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setSheetOpen(false)}

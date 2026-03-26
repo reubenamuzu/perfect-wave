@@ -5,13 +5,14 @@ import type { IBundle } from "@/types";
 
 interface BundleGridProps {
   bundles: IBundle[];
+  network: string;
 }
 
-export default function BundleGrid({ bundles }: BundleGridProps) {
+export default function BundleGrid({ bundles, network }: BundleGridProps) {
   if (bundles.length === 0) {
     return (
-      <div className="py-16 text-center text-gray-400">
-        No bundles found for {bundles.length > 0 ? ` (${bundles[0].network})` : ''}.
+      <div className="py-16 text-center text-gray-400" style={{ fontFamily: 'Outfit, sans-serif' }}>
+        No Data Bundle available for {network}.
       </div>
     );
   }
